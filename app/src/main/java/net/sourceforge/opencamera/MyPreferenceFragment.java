@@ -41,6 +41,8 @@ import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -1502,10 +1504,13 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MyPreferenceFragment.this.getActivity());
                         alertDialog.setTitle(R.string.preference_save_settings_filename);
 
-                        final EditText editText = new EditText(getActivity());
+                        final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.alertdialog_edit_text, null);
+                        final EditText editText = dialog_view.findViewById(R.id.edit_text);
+
                         // set hint instead of content description for EditText, see https://support.google.com/accessibility/android/answer/6378120
                         editText.setHint(getResources().getString(R.string.preference_save_settings_filename));
-                        alertDialog.setView(editText);
+
+                        alertDialog.setView(dialog_view);
 
                         final MainActivity main_activity = (MainActivity)MyPreferenceFragment.this.getActivity();
                         try {

@@ -80,6 +80,7 @@ import android.view.Display;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
@@ -1827,11 +1828,12 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle(R.string.preference_textstamp);
 
-        final EditText editText = new EditText(this);
+        final View dialog_view = LayoutInflater.from(this).inflate(R.layout.alertdialog_edit_text, null);
+        final EditText editText = dialog_view.findViewById(R.id.edit_text);
         // set hint instead of content description for EditText, see https://support.google.com/accessibility/android/answer/6378120
         editText.setHint(getResources().getString(R.string.preference_textstamp));
         editText.setText(applicationInterface.getTextStampPref());
-        alertDialog.setView(editText);
+        alertDialog.setView(dialog_view);
         alertDialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -4322,7 +4324,9 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle(R.string.preference_save_location);
 
-        final EditText editText = new EditText(this);
+        final View dialog_view = LayoutInflater.from(this).inflate(R.layout.alertdialog_edit_text, null);
+        final EditText editText = dialog_view.findViewById(R.id.edit_text);
+
         // set hint instead of content description for EditText, see https://support.google.com/accessibility/android/answer/6378120
         editText.setHint(getResources().getString(R.string.preference_save_location));
         editText.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -4346,7 +4350,8 @@ public class MainActivity extends AppCompatActivity {
         };
         editText.setFilters(new InputFilter[]{filter});
 
-        alertDialog.setView(editText);
+        alertDialog.setView(dialog_view);
+
         alertDialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

@@ -21,6 +21,7 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -370,7 +371,9 @@ public class FolderChooserDialog extends DialogFragment {
         if( current_folder == null )
             return;
         if( canWrite() ) {
-            final EditText edit_text = new EditText(getActivity());
+            final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.alertdialog_edit_text, null);
+            final EditText edit_text = dialog_view.findViewById(R.id.edit_text);
+
             edit_text.setSingleLine();
             edit_text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20.0f);
             // set hint instead of content description for EditText, see https://support.google.com/accessibility/android/answer/6378120
@@ -382,7 +385,7 @@ public class FolderChooserDialog extends DialogFragment {
             Dialog dialog = new AlertDialog.Builder(getActivity())
                     //.setIcon(R.drawable.alert_dialog_icon)
                     .setTitle(R.string.enter_new_folder)
-                    .setView(edit_text)
+                    .setView(dialog_view)
                     .setPositiveButton(android.R.string.ok, new Dialog.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
