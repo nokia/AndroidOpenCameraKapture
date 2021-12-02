@@ -1507,6 +1507,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
                         final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.alertdialog_edit_text, null);
                         final EditText editText = dialog_view.findViewById(R.id.edit_text);
 
+                        editText.setSingleLine();
                         // set hint instead of content description for EditText, see https://support.google.com/accessibility/android/answer/6378120
                         editText.setHint(getResources().getString(R.string.preference_save_settings_filename));
 
