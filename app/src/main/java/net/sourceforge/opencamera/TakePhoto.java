@@ -1,15 +1,16 @@
 package net.sourceforge.opencamera;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /** Entry Activity for the "take photo" widget (see MyWidgetProviderTakePhoto).
  *  This redirects to MainActivity, but uses an intent extra/bundle to pass the
  *  "take photo" request.
  */
-public class TakePhoto extends Activity {
+public class TakePhoto extends AppCompatActivity {
     private static final String TAG = "TakePhoto";
 
     // Usually passing data via intent is preferred to using statics - however here a static is better for security,

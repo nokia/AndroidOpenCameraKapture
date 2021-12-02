@@ -3,7 +3,7 @@ package net.sourceforge.opencamera.remotecontrol;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
+//import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -18,12 +18,14 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -37,7 +39,9 @@ import net.sourceforge.opencamera.R;
 import java.util.ArrayList;
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-public class DeviceScanner extends ListActivity {
+//public class DeviceScanner extends ListActivity {
+//public class DeviceScanner extends Activity {
+public class DeviceScanner extends AppCompatActivity {
     private static final String TAG = "OC-BLEScanner";
     private LeDeviceListAdapter leDeviceListAdapter;
     private BluetoothAdapter bluetoothAdapter;
@@ -83,7 +87,21 @@ public class DeviceScanner extends ListActivity {
 
         TextView currentRemote = findViewById(R.id.currentRemote);
         currentRemote.setText(getResources().getString(R.string.bluetooth_current_remote) + " " + remote_name);
+    }
 
+    @Override
+    public void onContentChanged() {
+        if( MyDebug.LOG )
+            Log.d(TAG, "onContentChanged");
+
+        super.onContentChanged();
+
+        ListView list = findViewById(R.id.list);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                onListItemClick((ListView)parent, v, position, id);
+            }
+        });
     }
 
     private void startScanning() {
@@ -98,7 +116,9 @@ public class DeviceScanner extends ListActivity {
         }
 
         leDeviceListAdapter = new LeDeviceListAdapter();
-        setListAdapter(leDeviceListAdapter);
+        //setListAdapter(leDeviceListAdapter);
+        ListView list = findViewById(R.id.list);
+        list.setAdapter(leDeviceListAdapter);
 
         // In real life most of bluetooth LE devices associated with location, so without this
         // permission the sample shows nothing in most cases
@@ -245,7 +265,7 @@ public class DeviceScanner extends ListActivity {
         super.onDestroy();
     }
 
-    @Override
+    //@Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = leDeviceListAdapter.getDevice(position);
         if( device == null )
