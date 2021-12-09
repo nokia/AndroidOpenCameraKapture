@@ -42,7 +42,10 @@ dependencies {
     // appcompat version must be 1.4.0 or later to satisfy emoji policy!
     //implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.appcompat:appcompat:1.4.0'
+
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
     implementation 'androidx.exifinterface:exifinterface:1.3.3'
+
     testImplementation 'junit:junit:4.13.1'
 }
