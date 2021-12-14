@@ -4,6 +4,7 @@ import net.sourceforge.opencamera.cameracontroller.CameraController;
 import net.sourceforge.opencamera.preview.Preview;
 import net.sourceforge.opencamera.ui.ArraySeekBarPreference;
 import net.sourceforge.opencamera.ui.FolderChooserDialog;
+import net.sourceforge.opencamera.ui.MyEditTextPreference;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -976,7 +977,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
                         return true;
                     }
                     else if( MainActivity.useScopedStorage() ) {
-                        // we can't use an EditTextPreference due to having to support non-scoped-storage, or when SAF is enabled...
+                        // we can't use an EditTextPreference (or MyEditTextPreference) due to having to support non-scoped-storage, or when SAF is enabled...
                         // anyhow, this means we can share code when called from gallery long-press anyway
                         AlertDialog.Builder alertDialog = main_activity.createSaveFolderDialog();
                         final AlertDialog alert = alertDialog.create();
@@ -1950,7 +1951,20 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
      */
     private void setSummary(String key) {
         Preference pref = findPreference(key);
+
+        //noinspection DuplicateCondition
         if( pref instanceof EditTextPreference ) {
+            /* We have a runtime check for using EditTextPreference - we don't want these due to importance of
+             * supporting the Google Play emoji policy (see comment in MyEditTextPreference.java) - and this
+             * helps guard against the risk of accidentally adding more EditTextPreferences in future.
+             * Once we've switched to using Android X Preference library, and hence safe to use EditTextPreference
+             * again, this code can be removed.
+             */
+            throw new RuntimeException("detected an EditTextPreference: " + key + " pref: " + pref);
+        }
+
+        //noinspection DuplicateCondition
+        if( pref instanceof EditTextPreference || pref instanceof MyEditTextPreference) {
             // %s only supported for ListPreference
             // we also display the usual summary if no preference value is set
             if( pref.getKey().equals("preference_exif_artist") ||
@@ -1964,8 +1978,18 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
                     default_value = "IMG_";
                 else if( pref.getKey().equals("preference_save_video_prefix") )
                     default_value = "VID_";
-                EditTextPreference editTextPref = (EditTextPreference)pref;
-                if( editTextPref.getText().equals(default_value) ) {
+
+                String current_value;
+                if( pref instanceof EditTextPreference ) {
+                    EditTextPreference editTextPref = (EditTextPreference)pref;
+                    current_value = editTextPref.getText();
+                }
+                else {
+                    MyEditTextPreference editTextPref = (MyEditTextPreference)pref;
+                    current_value = editTextPref.getText();
+                }
+
+                if( current_value.equals(default_value) ) {
                     switch (pref.getKey()) {
                         case "preference_exif_artist":
                             pref.setSummary(R.string.preference_exif_artist_summary);
@@ -1986,7 +2010,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
                 }
                 else {
                     // non-default value, so display the current value
-                    pref.setSummary(editTextPref.getText());
+                    pref.setSummary(current_value);
                 }
             }
         }
