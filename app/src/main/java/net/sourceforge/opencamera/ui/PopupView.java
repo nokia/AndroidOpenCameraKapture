@@ -1700,11 +1700,6 @@ public class PopupView extends LinearLayout {
             }
 
             final MainActivity main_activity = (MainActivity)this.getContext();
-			/*final Button prev_button = new Button(this.getContext());
-			//prev_button.setBackgroundResource(R.drawable.exposure);
-			prev_button.setBackgroundColor(Color.TRANSPARENT); // workaround for Android 6 crash!
-			prev_button.setText("<");
-			this.addView(prev_button);*/
 
             LinearLayout ll2 = new LinearLayout(this.getContext());
             ll2.setOrientation(LinearLayout.HORIZONTAL);
