@@ -371,7 +371,7 @@ public class FolderChooserDialog extends DialogFragment {
         if( current_folder == null )
             return;
         if( canWrite() ) {
-            final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.alertdialog_edit_text, null);
+            final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.alertdialog_edittext, null);
             final EditText edit_text = dialog_view.findViewById(R.id.edit_text);
 
             edit_text.setSingleLine();

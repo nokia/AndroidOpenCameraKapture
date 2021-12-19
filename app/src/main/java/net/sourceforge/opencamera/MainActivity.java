@@ -1828,7 +1828,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle(R.string.preference_textstamp);
 
-        final View dialog_view = LayoutInflater.from(this).inflate(R.layout.alertdialog_edit_text, null);
+        final View dialog_view = LayoutInflater.from(this).inflate(R.layout.alertdialog_edittext, null);
         final EditText editText = dialog_view.findViewById(R.id.edit_text);
         // set hint instead of content description for EditText, see https://support.google.com/accessibility/android/answer/6378120
         editText.setHint(getResources().getString(R.string.preference_textstamp));
@@ -4324,7 +4324,7 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle(R.string.preference_save_location);
 
-        final View dialog_view = LayoutInflater.from(this).inflate(R.layout.alertdialog_edit_text, null);
+        final View dialog_view = LayoutInflater.from(this).inflate(R.layout.alertdialog_edittext, null);
         final EditText editText = dialog_view.findViewById(R.id.edit_text);
 
         // set hint instead of content description for EditText, see https://support.google.com/accessibility/android/answer/6378120

@@ -1507,7 +1507,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MyPreferenceFragment.this.getActivity());
                         alertDialog.setTitle(R.string.preference_save_settings_filename);
 
-                        final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.alertdialog_edit_text, null);
+                        final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.alertdialog_edittext, null);
                         final EditText editText = dialog_view.findViewById(R.id.edit_text);
 
                         editText.setSingleLine();
