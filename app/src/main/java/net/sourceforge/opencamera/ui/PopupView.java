@@ -40,9 +40,10 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
+
+import androidx.appcompat.widget.SwitchCompat;
 
 /** This defines the UI for the "popup" button, that provides quick access to a
  *  range of options.
@@ -702,7 +703,7 @@ public class PopupView extends LinearLayout {
 
                 @SuppressLint("InflateParams")
                 final View switch_view = LayoutInflater.from(context).inflate(R.layout.popupview_switch, null);
-                final Switch checkBox = switch_view.findViewById(R.id.popupview_switch);
+                final SwitchCompat checkBox = switch_view.findViewById(R.id.popupview_switch);
 
                 checkBox.setText(getResources().getString(R.string.focus_bracketing_add_infinity));
 
