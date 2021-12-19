@@ -1052,6 +1052,9 @@ public class PopupView extends LinearLayout {
             }
 
         }
+
+        if( MyDebug.LOG )
+            Log.d(TAG, "Overall PopupView time: " + (System.nanoTime() - debug_time));
     }
 
     int getTotalWidth() {
@@ -1470,6 +1473,8 @@ public class PopupView extends LinearLayout {
     }
 
     private void addTitleToPopup(final String title) {
+        final long debug_time = System.nanoTime();
+
         TextView text_view = new TextView(this.getContext());
         text_view.setText(title + ":");
         text_view.setTextColor(Color.WHITE);
@@ -1479,6 +1484,8 @@ public class PopupView extends LinearLayout {
         //text_view.setBackgroundColor(Color.GRAY); // debug
         text_view.setBackgroundColor(Color.argb(255, 33,  33, 33)); // Grey 900
         this.addView(text_view);
+        if( MyDebug.LOG )
+            Log.d(TAG, "addTitleToPopup time: " + (System.nanoTime() - debug_time));
     }
 
     private abstract static class RadioOptionsListener {
@@ -1701,6 +1708,8 @@ public class PopupView extends LinearLayout {
 
             final MainActivity main_activity = (MainActivity)this.getContext();
 
+            final long debug_time = System.nanoTime();
+
             LinearLayout ll2 = new LinearLayout(this.getContext());
             ll2.setOrientation(LinearLayout.HORIZONTAL);
 
@@ -1784,6 +1793,9 @@ public class PopupView extends LinearLayout {
             });
 
             this.addView(ll2);
+
+            if( MyDebug.LOG )
+                Log.d(TAG, "addArrayOptionsToPopup time: " + (System.nanoTime() - debug_time));
         }
     }
 }
