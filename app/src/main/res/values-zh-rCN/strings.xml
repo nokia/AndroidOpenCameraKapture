@@ -932,7 +932,14 @@
     <string name="preference_zebra_stripes_color_transparent">半透明</string>
     <string name="preference_zebra_stripes_color_white">白色</string>
     <string name="preference_multi_cam_button_summary">如果启用，使用分开的按钮在前置/后置相机之间切换，且在多个前置/后置之间切换。如果禁用，切换相机按钮将在所有相机之间循环。</string>
-    <string name="preference_stamp_geo_address_summary">如果可行的话，在标注 GPS 位置时使用一个地址。该选项需要互联网连接。注意一旦启用，这将要求您的设备传输位置数据至互联网上的第三方来实现将 GPS 坐标转换为地址的操作。参阅 https://developer.android.com/reference/android/location/Geocoder 。 \n%s</string>
+
+    <!-- beware of string being too long to display! -->
+    <string name="preference_stamp_geo_address_summary">如果可行的话，在标注 GPS 位置时使用一个地址。
+        注意一旦启用，这将要求您的设备传输位置数据至互联网上的第三方来实现将 GPS 坐标转换为地址的操作。
+        参阅 https://developer.android.com/reference/android/location/Geocoder 。
+        此功能不保证可用性或准确性。 结果是最佳猜测，不能保证有意义或正确。
+        \n%s</string>
+
     <string name="preference_comment_ypr">保存三轴运动信息</string>
     <string name="preference_comment_ypr_summary">在照片的 Exit 用户备注字段保存设备的三轴运动信息(仅适用于JPEG格式)</string>
     <string name="preference_audio_control_summary">根据噪音或者语音指令拍照。当启用后，使用屏幕上的麦克风按钮来启动监听。注意语音指令选项使用 Android 语音识别服务：当使用该选项的时候，语音数据将极有可能被发送至远程服务来实现指令识别。\n%s</string>

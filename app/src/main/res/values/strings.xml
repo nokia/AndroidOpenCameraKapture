@@ -905,10 +905,11 @@
         be sent to remote servers to perform speech recognition.
         \n%s</string>
 
-    <string name="preference_stamp_geo_address_summary">If possible, obtain an address from GPS locations (for photo stamp or video subtitles).
-        This option requires an Internet connection.
-        Note that if enabled, this requires that your device transmits location data across the Internet to a third party
+    <!-- beware of string being too long to display! -->
+    <string name="preference_stamp_geo_address_summary">If possible, obtain address from GPS location (for photo stamp or video subtitles).
+        Note if enabled, this requires your device transmits location data across the Internet to a third party
         in order to convert GPS coordinates to an address. See https://developer.android.com/reference/android/location/Geocoder .
+        This feature provides no guarantees on availability or accuracy. Results are a best guess, and not guaranteed to be meaningful or correct.
         \n%s</string>
 
     <string name="intro_text">Touch to focus, and press the blue camera button to take photos.

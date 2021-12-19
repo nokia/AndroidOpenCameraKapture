@@ -841,10 +841,11 @@
         音声認識のためリモートサーバーへ送信されます。
         \n%s</string>
 
+    <!-- beware of string being too long to display! -->
     <string name="preference_stamp_geo_address_summary">もし可能であれば、GPS座標と一緒に住所もスタンプします。
-        この機能にはインターネット接続が必要です。
         注意:住所の使用が有効になっている場合、GPS座標から住所への変換をするため端末の位置情報を含むリクエストが第三者へ送信されます。
         詳しくはこちら https://developer.android.com/reference/android/location/Geocoder
+        この機能は、可用性または正確性を保証するものではありません。 結果は最良の推測であり、意味のあるものや正しいものであるとは限りません。
         \n%s</string>
 
     <string name="intro_text">フォーカスするには画面をタッチ、そして写真を撮るには青いカメラボタンを押します。

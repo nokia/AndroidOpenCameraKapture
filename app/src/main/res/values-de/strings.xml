@@ -895,10 +895,11 @@
         an entfernte Server gesendet werden, um die Spracherkennung durchzuführen.
         \n%s</string>
 
+    <!-- beware of string being too long to display! -->
     <string name="preference_stamp_geo_address_summary">Wenn möglich, nutze eine Adresse bei der Speicherung des GPS Standorts.
-        Diese Option benötigt eine Internetverbindung.
-        Beachte, dass durch die Aktivierung dein Gerät Standortdaten über das Internet an einen externen Dienst sendet,
-        um die GPS-Koordinaten in eine Adresse zu konvertieren. Siehe https://developer.android.com/reference/android/location/Geocoder .
+        Diese Option erfordert, dass Ihr Gerät Standortdaten über das Internet an einen Dritten überträgt,
+        um GPS-Koordinaten in eine Adresse umzuwandeln. Siehe https://developer.android.com/reference/android/location/Geocoder .
+        Gibt keine Garantien für Verfügbarkeit oder Genauigkeit. Es wird nicht garantiert, dass die Ergebnisse aussagekräftig oder korrekt sind.
         \n%s</string>
 
     <string name="intro_text">Zum Fokussieren berühren und blaue Kamerataste drücken, um Bilder aufzunehmen.

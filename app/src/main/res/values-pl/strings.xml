@@ -817,10 +817,11 @@
         wysyłane do zdalnych serwerów w celu wykonania rozpoznawania mowy.
         \n%s</string>
 
-    <string name="preference_stamp_geo_address_summary">Jeśli to możliwe, uzyskaj adres z lokalizacji GPS (do stempla fotograficznego lub napisów do filmów).
-        Ta opcja wymaga połączenia z Internetem.
-        Pamiętaj, że jeśli jest włączona, Twoje urządzenie będzie przesyłało dane o lokalizacji przez Internet do strony trzeciej
+    <!-- beware of string being too long to display! -->
+    <string name="preference_stamp_geo_address_summary">Jeśli to możliwe, uzyskaj adres z lokalizacji GPS (do stempla, lub napisów do filmów).
+        Jeśli ta opcja jest włączona, Twoje urządzenie będzie przesyłało dane o lokalizacji przez Internet do strony trzeciej
         w celu konwersji współrzędnych GPS na adres. Zobacz stronę https://developer.android.com/reference/android/location/Geocoder .
+        Ta funkcja nie gwarantuje dostępności ani dokładności. Nie ma gwarancji, że wyniki będą znaczące lub poprawne.
         \n%s</string>
 
     <string name="intro_text">Dotknij, aby ustawić ostrość, i dotknij niebieski przycisk aparatu, aby robić zdjęcia.

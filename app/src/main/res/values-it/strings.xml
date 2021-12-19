@@ -898,10 +898,11 @@
         opzione, i dati audio possono essere inviati a server remoti per eseguire il riconoscimento vocale.
         \n%s</string>
 
+    <!-- beware of string being too long to display! -->
     <string name="preference_stamp_geo_address_summary">Se possibile, ottieni indirizzi dalle posizioni GPS (per timbro foto e sottotitoli video).
-        Questa opzione richiede una connessione Internet.
-        Nota che se abilitata, ciò richiede che il tuo dispositivo trasmetta i dati di posizione attraverso Internet a terze parti
+        Se abilitata, ciò richiede che il tuo dispositivo trasmetta i dati di posizione attraverso Internet a terze parti
         per convertire le coordinate GPS in indirizzi. Vedi https://developer.android.com/reference/android/location/Geocoder .
+        Ciò non fornisce garanzie sulla disponibilità o sull\'accuratezza. Non è garantito che i risultati siano significativi o corretti.
         \n%s</string>
 
     <string name="intro_text">Tocca per mettere a fuoco e premi il pulsante blu della fotocamera per scattare foto.
