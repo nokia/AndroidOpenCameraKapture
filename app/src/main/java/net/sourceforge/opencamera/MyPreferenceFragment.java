@@ -1442,7 +1442,9 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
 
                         // clickable text is only supported if we call setMovementMethod on the TextView - which means we need to create
                         // our own for the AlertDialog!
-                        TextView textView = new TextView(getActivity());
+                        final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.alertdialog_textview, null);
+                        final TextView textView = dialog_view.findViewById(R.id.text_view);
+
                         textView.setText(span);
                         textView.setMovementMethod(LinkMovementMethod.getInstance());
                         textView.setTextAppearance(getActivity(), android.R.style.TextAppearance_Medium);
@@ -1717,7 +1719,8 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         Spanned span = Html.fromHtml(getActivity().getResources().getString(R.string.preference_privacy_policy_text));
         // clickable text is only supported if we call setMovementMethod on the TextView - which means we need to create
         // our own for the AlertDialog!
-        TextView textView = new TextView(getActivity());
+        final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.alertdialog_textview, null);
+        final TextView textView = dialog_view.findViewById(R.id.text_view);
         textView.setText(span);
         textView.setMovementMethod(LinkMovementMethod.getInstance());
         textView.setTextAppearance(getActivity(), android.R.style.TextAppearance_Medium);
