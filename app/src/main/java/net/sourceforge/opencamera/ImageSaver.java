@@ -47,7 +47,13 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.renderscript.Allocation;
 import android.util.Log;
+import android.util.TypedValue;
 import android.util.Xml;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlSerializer;
@@ -2068,7 +2074,7 @@ public class ImageSaver extends Thread {
         if( MyDebug.LOG ) {
             Log.d(TAG, "stampImage");
         }
-        final MyApplicationInterface applicationInterface = main_activity.getApplicationInterface();
+        //final MyApplicationInterface applicationInterface = main_activity.getApplicationInterface();
         boolean dategeo_stamp = request.preference_stamp.equals("preference_stamp_yes");
         boolean text_stamp = request.preference_textstamp.length() > 0;
         if( dategeo_stamp || text_stamp ) {
@@ -2086,6 +2092,12 @@ public class ImageSaver extends Thread {
                     Log.d(TAG, "stamp info to bitmap: " + bitmap);
                 if( MyDebug.LOG )
                     Log.d(TAG, "bitmap is mutable?: " + bitmap.isMutable());
+
+                String stamp_string = "";
+                /* We now stamp via a TextView instead of using MyApplicationInterface.drawTextWithBackground().
+                 * This is important in order to satisfy the Google emoji policy...
+                 */
+
                 int font_size = request.font_size;
                 int color = request.color;
                 String pref_style = request.pref_style;
@@ -2151,7 +2163,11 @@ public class ImageSaver extends Thread {
                                 datetime_stamp += " ";
                             datetime_stamp += time_stamp;
                         }
-                        applicationInterface.drawTextWithBackground(canvas, p, datetime_stamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+                        //applicationInterface.drawTextWithBackground(canvas, p, datetime_stamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+                        if( stamp_string.length() == 0 )
+                            stamp_string = datetime_stamp;
+                        else
+                            stamp_string = datetime_stamp + "\n" + stamp_string;
                     }
                     ypos -= diff_y;
                     String gps_stamp = main_activity.getTextFormatter().getGPSString(preference_stamp_gpsformat, request.preference_units_distance, request.store_location, request.location, request.store_geo_direction, request.geo_direction);
@@ -2202,7 +2218,11 @@ public class ImageSaver extends Thread {
                                 Log.d(TAG, "display gps coords");
                             // want GPS coords (either in addition to the address, or we don't have an address)
                             // we'll also enter here if store_location is false, but we have geo direction to display
-                            applicationInterface.drawTextWithBackground(canvas, p, gps_stamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+                            //applicationInterface.drawTextWithBackground(canvas, p, gps_stamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+                            if( stamp_string.length() == 0 )
+                                stamp_string = gps_stamp;
+                            else
+                                stamp_string = gps_stamp + "\n" + stamp_string;
                             ypos -= diff_y;
                         }
                         else if( request.store_geo_direction ) {
@@ -2212,7 +2232,11 @@ public class ImageSaver extends Thread {
                             gps_stamp = main_activity.getTextFormatter().getGPSString(preference_stamp_gpsformat, request.preference_units_distance, false, null, request.store_geo_direction, request.geo_direction);
                             if( gps_stamp.length() > 0 ) {
                                 // don't log gps_stamp, in case of privacy!
-                                applicationInterface.drawTextWithBackground(canvas, p, gps_stamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+                                //applicationInterface.drawTextWithBackground(canvas, p, gps_stamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+                                if( stamp_string.length() == 0 )
+                                    stamp_string = gps_stamp;
+                                else
+                                    stamp_string = gps_stamp + "\n" + stamp_string;
                                 ypos -= diff_y;
                             }
                         }
@@ -2221,7 +2245,11 @@ public class ImageSaver extends Thread {
                             for(int i=0;i<=address.getMaxAddressLineIndex();i++) {
                                 // write in reverse order
                                 String addressLine = address.getAddressLine(address.getMaxAddressLineIndex()-i);
-                                applicationInterface.drawTextWithBackground(canvas, p, addressLine, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+                                //applicationInterface.drawTextWithBackground(canvas, p, addressLine, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+                                if( stamp_string.length() == 0 )
+                                    stamp_string = addressLine;
+                                else
+                                    stamp_string = addressLine + "\n" + stamp_string;
                                 ypos -= diff_y;
                             }
                         }
@@ -2230,9 +2258,47 @@ public class ImageSaver extends Thread {
                 if( text_stamp ) {
                     if( MyDebug.LOG )
                         Log.d(TAG, "stamp text");
-                    applicationInterface.drawTextWithBackground(canvas, p, request.preference_textstamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+
+                    //applicationInterface.drawTextWithBackground(canvas, p, request.preference_textstamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
+                    if( stamp_string.length() == 0 )
+                        stamp_string = request.preference_textstamp;
+                    else
+                        stamp_string = request.preference_textstamp + "\n" + stamp_string;
+
                     //noinspection UnusedAssignment
                     ypos -= diff_y;
+                }
+
+                if( stamp_string.length() > 0 ) {
+                    // don't log stamp_string, in case of privacy!
+
+                    @SuppressLint("InflateParams")
+                    final View stamp_view = LayoutInflater.from(main_activity).inflate(R.layout.stamp_image_text, null);
+                    final LinearLayout layout = stamp_view.findViewById(R.id.layout);
+                    final TextView textview = stamp_view.findViewById(R.id.text_view);
+
+                    textview.setVisibility(View.VISIBLE);
+                    textview.setTextColor(color);
+                    textview.setTextSize(TypedValue.COMPLEX_UNIT_PX, font_size_pixel);
+                    textview.setText(stamp_string);
+                    if( draw_shadowed == MyApplicationInterface.Shadow.SHADOW_OUTLINE ) {
+                        //noinspection PointlessArithmeticExpression
+                        float shadow_radius = (1.0f * scale + 0.5f); // convert pt to pixels
+                        shadow_radius = Math.max(shadow_radius, 1.0f);
+                        if( MyDebug.LOG )
+                            Log.d(TAG, "shadow_radius: " + shadow_radius);
+                        textview.setShadowLayer(shadow_radius, 0.0f, 0.0f, Color.BLACK);
+                    }
+                    else if( draw_shadowed == MyApplicationInterface.Shadow.SHADOW_BACKGROUND ) {
+                        textview.setBackgroundColor(Color.argb(64, 0, 0, 0));
+                    }
+                    //textview.setBackgroundColor(Color.BLACK); // test
+                    textview.setGravity(Gravity.END); // so text is right-aligned - important when there are multiple lines
+
+                    layout.measure(canvas.getWidth(), canvas.getHeight());
+                    layout.layout(0, 0, canvas.getWidth(), canvas.getHeight());
+                    canvas.translate(width - offset_x - textview.getWidth(), height - offset_y - textview.getHeight());
+                    layout.draw(canvas);
                 }
             }
         }
