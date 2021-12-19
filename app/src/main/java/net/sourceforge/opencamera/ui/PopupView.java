@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -26,6 +27,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -698,9 +700,12 @@ public class PopupView extends LinearLayout {
                     }
                 });
 
-                //CheckBox checkBox = new CheckBox(main_activity);
-                Switch checkBox = new Switch(main_activity);
+                @SuppressLint("InflateParams")
+                final View switch_view = LayoutInflater.from(context).inflate(R.layout.popupview_switch, null);
+                final Switch checkBox = switch_view.findViewById(R.id.popupview_switch);
+
                 checkBox.setText(getResources().getString(R.string.focus_bracketing_add_infinity));
+
                 {
                     // align the checkbox a bit better
                     checkBox.setGravity(Gravity.RIGHT);
@@ -1376,7 +1381,10 @@ public class PopupView extends LinearLayout {
                     view.setPadding(padding, padding, padding, padding);
                 }
                 else {
-                    Button button = new Button(context);
+                    @SuppressLint("InflateParams")
+                    final View button_view = LayoutInflater.from(context).inflate(R.layout.popupview_button, null);
+                    final Button button = button_view.findViewById(R.id.button);
+
                     button.setBackgroundColor(Color.TRANSPARENT); // workaround for Android 6 crash! Also looks nicer anyway...
                     view = button;
                     buttons.add(view);
@@ -1475,14 +1483,14 @@ public class PopupView extends LinearLayout {
     private void addTitleToPopup(final String title) {
         final long debug_time = System.nanoTime();
 
-        TextView text_view = new TextView(this.getContext());
+        @SuppressLint("InflateParams")
+        final View view = LayoutInflater.from(this.getContext()).inflate(R.layout.popupview_textview, null);
+        final TextView text_view = view.findViewById(R.id.text_view);
+
         text_view.setText(title + ":");
-        text_view.setTextColor(Color.WHITE);
-        text_view.setGravity(Gravity.CENTER);
         text_view.setTextSize(TypedValue.COMPLEX_UNIT_DIP, title_text_size_dip);
         text_view.setTypeface(null, Typeface.BOLD);
         //text_view.setBackgroundColor(Color.GRAY); // debug
-        text_view.setBackgroundColor(Color.argb(255, 33,  33, 33)); // Grey 900
         this.addView(text_view);
         if( MyDebug.LOG )
             Log.d(TAG, "addTitleToPopup time: " + (System.nanoTime() - debug_time));
@@ -1526,7 +1534,10 @@ public class PopupView extends LinearLayout {
             final MainActivity main_activity = (MainActivity)this.getContext();
             final long debug_time = System.nanoTime();
 
-            final Button button = new Button(this.getContext());
+            @SuppressLint("InflateParams")
+            final View button_view = LayoutInflater.from(this.getContext()).inflate(R.layout.popupview_button, null);
+            final Button button = button_view.findViewById(R.id.button);
+
             button.setBackgroundColor(Color.TRANSPARENT); // workaround for Android 6 crash!
             button.setText(title + "...");
             button.setAllCaps(false);
@@ -1617,7 +1628,16 @@ public class PopupView extends LinearLayout {
             }
             if( MyDebug.LOG )
                 Log.d(TAG, "addRadioOptionsToGroup time 1: " + (System.nanoTime() - debug_time));
-            RadioButton button = new RadioButton(this.getContext());
+
+            // Inflating from XML made opening the radio button sub-menus much slower on old devices (e.g., Galaxy Nexus),
+            // however testing showed this is also just as slow if we programmatically create a new AppCompatRadioButton().
+            // I.e., the slowdown is due to using AppCompatRadioButton (which AppCompat will automatically use if creating
+            // a RadioButton from XML) rather than inflating from XML.
+            // Whilst creating a new RadioButton() was faster, we can't do that anymore due to emoji policy!
+            @SuppressLint("InflateParams")
+            final View view = LayoutInflater.from(this.getContext()).inflate(R.layout.popupview_radiobutton, null);
+            final RadioButton button = view.findViewById(R.id.popupview_radiobutton);
+
             if( MyDebug.LOG )
                 Log.d(TAG, "addRadioOptionsToGroup time 2: " + (System.nanoTime() - debug_time));
 
@@ -1710,15 +1730,15 @@ public class PopupView extends LinearLayout {
 
             final long debug_time = System.nanoTime();
 
-            LinearLayout ll2 = new LinearLayout(this.getContext());
-            ll2.setOrientation(LinearLayout.HORIZONTAL);
+            @SuppressLint("InflateParams")
+            final View ll2 = LayoutInflater.from(this.getContext()).inflate(R.layout.popupview_arrayoptions, null);
+            final TextView text_view = ll2.findViewById(R.id.text_view);
+            final Button prev_button = ll2.findViewById(R.id.button_left);
+            final Button next_button = ll2.findViewById(R.id.button_right);
 
-            final TextView text_view = new TextView(this.getContext());
             setArrayOptionsText(supported_options, title, text_view, title_in_options, title_in_options_first_only, current_index);
             //text_view.setBackgroundColor(Color.GRAY); // debug
             text_view.setTextSize(TypedValue.COMPLEX_UNIT_DIP, standard_text_size_dip);
-            text_view.setTextColor(Color.WHITE);
-            text_view.setGravity(Gravity.CENTER);
             text_view.setSingleLine(true); // if text too long for the button, we'd rather not have wordwrap, even if it means cutting some text off
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
             // Yuck! We want the arrow_button_w to be fairly large so that users can touch the arrow buttons easily, but if
@@ -1730,9 +1750,8 @@ public class PopupView extends LinearLayout {
 
             final float scale = getResources().getDisplayMetrics().density;
             final int padding = (int) (0 * scale + 0.5f); // convert dps to pixels
-            final Button prev_button = new Button(this.getContext());
             prev_button.setBackgroundColor(Color.TRANSPARENT); // workaround for Android 6 crash!
-            ll2.addView(prev_button);
+            //ll2.addView(prev_button);
             prev_button.setText("<");
             prev_button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, arrow_text_size_dip);
             prev_button.setTypeface(null, Typeface.BOLD);
@@ -1745,12 +1764,11 @@ public class PopupView extends LinearLayout {
             prev_button.setContentDescription( getResources().getString(R.string.previous) + " " + title);
             main_activity.getMainUI().getTestUIButtonsMap().put(test_key + "_PREV", prev_button);
 
-            ll2.addView(text_view);
+            //ll2.addView(text_view);
             main_activity.getMainUI().getTestUIButtonsMap().put(test_key, text_view);
 
-            final Button next_button = new Button(this.getContext());
             next_button.setBackgroundColor(Color.TRANSPARENT); // workaround for Android 6 crash!
-            ll2.addView(next_button);
+            //ll2.addView(next_button);
             next_button.setText(">");
             next_button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, arrow_text_size_dip);
             next_button.setTypeface(null, Typeface.BOLD);
