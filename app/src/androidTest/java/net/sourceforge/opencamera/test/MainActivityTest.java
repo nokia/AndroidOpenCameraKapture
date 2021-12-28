@@ -3971,6 +3971,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
@@ -3989,6 +3990,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
@@ -4015,6 +4017,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
@@ -4057,6 +4060,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
 
@@ -4110,6 +4114,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
 
@@ -4154,6 +4159,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
@@ -4177,6 +4183,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
@@ -4201,6 +4208,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
 
@@ -11759,6 +11767,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mActivity.supportsFocusBracketing() ) {
+            Log.d(TAG, "test requires focus bracketing");
             return;
         }
 
@@ -11805,6 +11814,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mActivity.supportsFocusBracketing() ) {
+            Log.d(TAG, "test requires focus bracketing");
             return;
         }
 
@@ -11857,6 +11867,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mActivity.supportsFocusBracketing() ) {
+            Log.d(TAG, "test requires focus bracketing");
             return;
         }
 
@@ -11929,9 +11940,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mActivity.supportsFocusBracketing() ) {
+            Log.d(TAG, "test requires focus bracketing");
             return;
         }
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
 
@@ -11979,9 +11992,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         setToDefault();
 
         if( !mActivity.supportsFocusBracketing() ) {
+            Log.d(TAG, "test requires focus bracketing");
             return;
         }
         if( !mPreview.supportsRaw() ) {
+            Log.d(TAG, "test requires RAW");
             return;
         }
 
