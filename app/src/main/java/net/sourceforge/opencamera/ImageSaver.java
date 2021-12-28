@@ -3438,7 +3438,7 @@ public class ImageSaver extends Thread {
      * ParcelFileDescriptor (via getFileDescriptor()). It's important to keep a reference to the
      * ParcelFileDescriptor object for as long as the exif interface, otherwise there's a risk of
      * the ParcelFileDescriptor being garbage collected, invalidating the file descriptor still
-     * being used by the ExifInterace!
+     * being used by the ExifInterface!
      * This didn't cause any known bugs, but good practice to fix, similar to the issue reported in
      * https://sourceforge.net/p/opencamera/tickets/417/ .
      * Also important to call the close() method when done with it, to close the
