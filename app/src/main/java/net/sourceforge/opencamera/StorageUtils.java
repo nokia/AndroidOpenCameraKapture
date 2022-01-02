@@ -127,12 +127,12 @@ public class StorageUtils {
                         Log.e(TAG, "Couldn't resolve given uri [2]: " + uri);
                 }
                 else {
-                    String file_path = c.getString(c.getColumnIndex(Images.Media.DATA));
-                    String file_name = c.getString(c.getColumnIndex(Images.Media.DISPLAY_NAME));
-                    String mime_type = c.getString(c.getColumnIndex(Images.Media.MIME_TYPE));
+                    String file_path = c.getString(c.getColumnIndexOrThrow(Images.Media.DATA));
+                    String file_name = c.getString(c.getColumnIndexOrThrow(Images.Media.DISPLAY_NAME));
+                    String mime_type = c.getString(c.getColumnIndexOrThrow(Images.Media.MIME_TYPE));
                     @SuppressLint("InlinedApi") // complains this constant only available on API 29 (even though it was available on older versions, but looks like it was moved?)
-                    long date_taken = c.getLong(c.getColumnIndex(Images.Media.DATE_TAKEN));
-                    long date_added = c.getLong(c.getColumnIndex(Images.Media.DATE_ADDED));
+                    long date_taken = c.getLong(c.getColumnIndexOrThrow(Images.Media.DATE_TAKEN));
+                    long date_added = c.getLong(c.getColumnIndexOrThrow(Images.Media.DATE_ADDED));
                     Log.d(TAG, "file_path: " + file_path);
                     Log.d(TAG, "file_name: " + file_name);
                     Log.d(TAG, "mime_type: " + mime_type);
