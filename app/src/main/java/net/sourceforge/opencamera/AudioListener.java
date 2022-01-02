@@ -5,6 +5,8 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import androidx.annotation.RequiresPermission;
+
 /** Sets up a listener to listen for noise level.
  */
 class AudioListener {
@@ -20,6 +22,7 @@ class AudioListener {
 
     /** Create a new AudioListener. The caller should call the start() method to start listening.
      */
+    @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
     AudioListener(final AudioListenerCallback cb) {
         if( MyDebug.LOG )
             Log.d(TAG, "new AudioListener");
