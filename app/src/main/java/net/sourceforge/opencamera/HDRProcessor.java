@@ -43,10 +43,10 @@ public class HDRProcessor {
     private ScriptC_process_avg processAvgScript;
     private ScriptC_create_mtb createMTBScript;
     private ScriptC_align_mtb alignMTBScript;
-	/*private ScriptC_histogram_adjust histogramAdjustScript;
-	private ScriptC_histogram_compute histogramScript;
-	private ScriptC_avg_brighten avgBrightenScript;
-	private ScriptC_calculate_sharpness sharpnessScript;*/
+    /*private ScriptC_histogram_adjust histogramAdjustScript;
+    private ScriptC_histogram_compute histogramScript;
+    private ScriptC_avg_brighten avgBrightenScript;
+    private ScriptC_calculate_sharpness sharpnessScript;*/
 
     // public for access by testing
     public int [] offsets_x = null;
@@ -83,10 +83,10 @@ public class HDRProcessor {
         processAvgScript = null;
         createMTBScript = null;
         alignMTBScript = null;
-		/*histogramAdjustScript = null;
-		histogramScript = null;
-		avgBrightenScript = null;
-		sharpnessScript = null;*/
+        /*histogramAdjustScript = null;
+        histogramScript = null;
+        avgBrightenScript = null;
+        sharpnessScript = null;*/
     }
 
     public void onDestroy() {
@@ -336,7 +336,7 @@ public class HDRProcessor {
      *                      this controls the level of the local contrast enhancement done in adjustHistogram().
      * @param n_tiles       A value of 1 or greater indicating how local the contrast enhancement algorithm should be.
      * @param ce_preserve_blacks
-     * 						If true (recommended), then we apply a modification to the contrast enhancement algorithm to avoid
+     *                      If true (recommended), then we apply a modification to the contrast enhancement algorithm to avoid
      *                      making darker pixels too dark. A value of false gives more contrast on the darker regions of the
      *                      resultant image.
      * @param tonemapping_algorithm
@@ -421,8 +421,8 @@ public class HDRProcessor {
             for(int x=0;x<n_w_samples;x++) {
                 double beta = ((double)x+1.0) / ((double)n_w_samples+1.0);
                 int x_coord = (int)(beta * in_bitmap.getWidth());
-				/*if( MyDebug.LOG )
-					Log.d(TAG, "sample response from " + x_coord + " , " + y_coord);*/
+                /*if( MyDebug.LOG )
+                    Log.d(TAG, "sample response from " + x_coord + " , " + y_coord);*/
                 if( x_coord + offset_x < 0 || x_coord + offset_x >= in_bitmap.getWidth() || y_coord + offset_y < 0 || y_coord + offset_y >= in_bitmap.getHeight() ) {
                     continue;
                 }
@@ -538,10 +538,10 @@ public class HDRProcessor {
         ResponseFunction [] response_functions = new ResponseFunction[n_bitmaps]; // ResponseFunction for each image (the ResponseFunction entry can be left null to indicate the Identity)
         offsets_x = new int[n_bitmaps];
         offsets_y = new int[n_bitmaps];
-		/*int [][] buffers = new int[n_bitmaps][];
-		for(int i=0;i<n_bitmaps;i++) {
-			buffers[i] = new int[bm.getWidth()];
-		}*/
+        /*int [][] buffers = new int[n_bitmaps][];
+        for(int i=0;i<n_bitmaps;i++) {
+            buffers[i] = new int[bm.getWidth()];
+        }*/
         //float [] hdr = new float[3];
         //int [] rgb = new int[3];
 
@@ -614,44 +614,44 @@ public class HDRProcessor {
             }
         }
 
-		/*
-		// calculate average luminance by sampling
-		final int n_samples_c = 100;
-		final int n_w_samples = (int)Math.sqrt(n_samples_c);
-		final int n_h_samples = n_samples_c/n_w_samples;
+        /*
+        // calculate average luminance by sampling
+        final int n_samples_c = 100;
+        final int n_w_samples = (int)Math.sqrt(n_samples_c);
+        final int n_h_samples = n_samples_c/n_w_samples;
 
-		double sum_log_luminance = 0.0;
-		int count = 0;
-		for(int y=0;y<n_h_samples;y++) {
-			double alpha = ((double)y+1.0) / ((double)n_h_samples+1.0);
-			int y_coord = (int)(alpha * bm.getHeight());
-			for(int i=0;i<n_bitmaps;i++) {
-				bitmaps.get(i).getPixels(buffers[i], 0, bm.getWidth(), 0, y_coord, bm.getWidth(), 1);
-			}
-			for(int x=0;x<n_w_samples;x++) {
-				double beta = ((double)x+1.0) / ((double)n_w_samples+1.0);
-				int x_coord = (int)(beta * bm.getWidth());
-				if( MyDebug.LOG )
-					Log.d(TAG, "sample luminance from " + x_coord + " , " + y_coord);
-				calculateHDR(hdr, n_bitmaps, buffers, x_coord, response_functions);
-				double luminance = calculateLuminance(hdr[0], hdr[1], hdr[2]) + 1.0; // add 1 so we don't take log of 0..;
-				sum_log_luminance += Math.log(luminance);
-				count++;
-			}
-		}
-		float avg_luminance = (float)(Math.exp( sum_log_luminance / count ));
-		if( MyDebug.LOG )
-			Log.d(TAG, "avg_luminance: " + avg_luminance);
-		if( MyDebug.LOG )
-			Log.d(TAG, "time after calculating average luminance: " + (System.currentTimeMillis() - time_s));
-			*/
+        double sum_log_luminance = 0.0;
+        int count = 0;
+        for(int y=0;y<n_h_samples;y++) {
+            double alpha = ((double)y+1.0) / ((double)n_h_samples+1.0);
+            int y_coord = (int)(alpha * bm.getHeight());
+            for(int i=0;i<n_bitmaps;i++) {
+                bitmaps.get(i).getPixels(buffers[i], 0, bm.getWidth(), 0, y_coord, bm.getWidth(), 1);
+            }
+            for(int x=0;x<n_w_samples;x++) {
+                double beta = ((double)x+1.0) / ((double)n_w_samples+1.0);
+                int x_coord = (int)(beta * bm.getWidth());
+                if( MyDebug.LOG )
+                    Log.d(TAG, "sample luminance from " + x_coord + " , " + y_coord);
+                calculateHDR(hdr, n_bitmaps, buffers, x_coord, response_functions);
+                double luminance = calculateLuminance(hdr[0], hdr[1], hdr[2]) + 1.0; // add 1 so we don't take log of 0..;
+                sum_log_luminance += Math.log(luminance);
+                count++;
+            }
+        }
+        float avg_luminance = (float)(Math.exp( sum_log_luminance / count ));
+        if( MyDebug.LOG )
+            Log.d(TAG, "avg_luminance: " + avg_luminance);
+        if( MyDebug.LOG )
+            Log.d(TAG, "time after calculating average luminance: " + (System.currentTimeMillis() - time_s));
+            */
 
         // write new hdr image
 
         // create RenderScript
-		/*if( processHDRScript == null ) {
-			processHDRScript = new ScriptC_process_hdr(rs);
-		}*/
+        /*if( processHDRScript == null ) {
+            processHDRScript = new ScriptC_process_hdr(rs);
+        }*/
         ScriptC_process_hdr processHDRScript = new ScriptC_process_hdr(rs);
 
         // set allocations
@@ -898,8 +898,8 @@ public class HDRProcessor {
         else {
             processHDRScript.forEach_hdr(allocations[base_bitmap], output_allocation);
         }
-		/*processHDRScript.set_n_bitmaps_g(n_bitmaps);
-		processHDRScript.forEach_hdr_n(allocations[base_bitmap], output_allocation);*/
+        /*processHDRScript.set_n_bitmaps_g(n_bitmaps);
+        processHDRScript.forEach_hdr_n(allocations[base_bitmap], output_allocation);*/
         if( MyDebug.LOG )
             Log.d(TAG, "### time after processHDRScript: " + (System.currentTimeMillis() - time_s));
 
@@ -1005,7 +1005,7 @@ public class HDRProcessor {
                 if( MyDebug.LOG )
                     Log.d(TAG, "apply gain/gamma");
                 //if( true )
-                //	throw new HDRProcessorException(HDRProcessorException.UNEQUAL_SIZES); // test
+                //  throw new HDRProcessorException(HDRProcessorException.UNEQUAL_SIZES); // test
 
                 ScriptC_avg_brighten script = new ScriptC_avg_brighten(rs);
                 script.invoke_setBrightenParameters(gain, gamma, low_x, mid_x, max_brightness);
@@ -1204,38 +1204,38 @@ public class HDRProcessor {
         if( MyDebug.LOG )
             Log.d(TAG, "### time after creating renderscript: " + (System.currentTimeMillis() - time_s));
         // create allocations
-		/*Allocation allocation_avg = Allocation.createFromBitmap(rs, bitmap_avg);
-		//Allocation allocation_new = Allocation.createFromBitmap(rs, bitmap_new);
-		//Allocation allocation_out = Allocation.createTyped(rs, Type.createXY(rs, Element.F32_3(rs), width, height));
-		if( MyDebug.LOG )
-			Log.d(TAG, "### time after creating allocations from bitmaps: " + (System.currentTimeMillis() - time_s));
-			*/
+        /*Allocation allocation_avg = Allocation.createFromBitmap(rs, bitmap_avg);
+        //Allocation allocation_new = Allocation.createFromBitmap(rs, bitmap_new);
+        //Allocation allocation_out = Allocation.createTyped(rs, Type.createXY(rs, Element.F32_3(rs), width, height));
+        if( MyDebug.LOG )
+            Log.d(TAG, "### time after creating allocations from bitmaps: " + (System.currentTimeMillis() - time_s));
+            */
 
-		/*final boolean use_sharpness_test = false; // disabled for now - takes about 1s extra, and no evidence this helps quality
-		if( use_sharpness_test ) {
-			float sharpness_avg = computeSharpness(allocation_avg, width, time_s);
-			float sharpness_new = computeSharpness(allocation_new, width, time_s);
-			if( sharpness_new > sharpness_avg ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "use new image as reference");
-				Allocation dummy_allocation = allocation_avg;
-				allocation_avg = allocation_new;
-				allocation_new = dummy_allocation;
-				Bitmap dummy_bitmap = bitmap_avg;
-				bitmap_avg = bitmap_new;
-				bitmap_new = dummy_bitmap;
-				sharp_index = 1;
-			}
-			else {
-				sharp_index = 0;
-			}
-			if( MyDebug.LOG )
-				Log.d(TAG, "sharp_index: " + sharp_index);
-		}*/
+        /*final boolean use_sharpness_test = false; // disabled for now - takes about 1s extra, and no evidence this helps quality
+        if( use_sharpness_test ) {
+            float sharpness_avg = computeSharpness(allocation_avg, width, time_s);
+            float sharpness_new = computeSharpness(allocation_new, width, time_s);
+            if( sharpness_new > sharpness_avg ) {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "use new image as reference");
+                Allocation dummy_allocation = allocation_avg;
+                allocation_avg = allocation_new;
+                allocation_new = dummy_allocation;
+                Bitmap dummy_bitmap = bitmap_avg;
+                bitmap_avg = bitmap_new;
+                bitmap_new = dummy_bitmap;
+                sharp_index = 1;
+            }
+            else {
+                sharp_index = 0;
+            }
+            if( MyDebug.LOG )
+                Log.d(TAG, "sharp_index: " + sharp_index);
+        }*/
 
-		/*LuminanceInfo luminanceInfo = computeMedianLuminance(bitmap_avg, 0, 0, width, height);
-		if( MyDebug.LOG )
-			Log.d(TAG, "median: " + luminanceInfo.median_value);*/
+        /*LuminanceInfo luminanceInfo = computeMedianLuminance(bitmap_avg, 0, 0, width, height);
+        if( MyDebug.LOG )
+            Log.d(TAG, "median: " + luminanceInfo.median_value);*/
 
         AvgData avg_data = processAvgCore(null, null, bitmap_avg, bitmap_new, width, height, avg_factor, iso, exposure_time, zoom_factor, null, null, null, time_s);
 
@@ -1274,9 +1274,9 @@ public class HDRProcessor {
         long time_s = System.currentTimeMillis();
 
         // create allocations
-		/*Allocation allocation_new = Allocation.createFromBitmap(rs, bitmap_new);
-		if( MyDebug.LOG )
-			Log.d(TAG, "### time after creating allocations from bitmaps: " + (System.currentTimeMillis() - time_s));*/
+        /*Allocation allocation_new = Allocation.createFromBitmap(rs, bitmap_new);
+        if( MyDebug.LOG )
+            Log.d(TAG, "### time after creating allocations from bitmaps: " + (System.currentTimeMillis() - time_s));*/
 
         processAvgCore(avg_data.allocation_out, avg_data.allocation_out, null, bitmap_new, width, height, avg_factor, iso, exposure_time, zoom_factor, avg_data.allocation_avg_align, avg_data.bitmap_avg_align, avg_data.allocation_orig, time_s);
 
@@ -1410,22 +1410,22 @@ public class HDRProcessor {
             boolean wider = sceneIsLowLight(iso, exposure_time);
             autoAlignment(offsets_x, offsets_y, allocations, alignment_width, alignment_height, align_bitmaps, 0, true, null, false, floating_point_align, 1, crop_to_centre, wider ? 2 : 1, full_alignment_width, full_alignment_height, time_s);
 
-			/*
-			// compute allocation_diffs
-			// if enabling this, should also:
-			// - set full_align above to true
-			// - set filter_align above to true
-			if( processAvgScript == null ) {
-				processAvgScript = new ScriptC_process_avg(rs);
-			}
-			processAvgScript.set_bitmap_align_new(allocations[1]);
-			processAvgScript.set_offset_x_new(offsets_x[1]);
-			processAvgScript.set_offset_y_new(offsets_y[1]);
-			allocation_diffs = Allocation.createTyped(rs, Type.createXY(rs, Element.F32(rs), alignment_width, alignment_height));
-			processAvgScript.forEach_compute_diff(allocations[0], allocation_diffs);
-			processAvgScript.set_scale_align_size(scale_align_size);
-			processAvgScript.set_allocation_diffs(allocation_diffs);
-			*/
+            /*
+            // compute allocation_diffs
+            // if enabling this, should also:
+            // - set full_align above to true
+            // - set filter_align above to true
+            if( processAvgScript == null ) {
+                processAvgScript = new ScriptC_process_avg(rs);
+            }
+            processAvgScript.set_bitmap_align_new(allocations[1]);
+            processAvgScript.set_offset_x_new(offsets_x[1]);
+            processAvgScript.set_offset_y_new(offsets_y[1]);
+            allocation_diffs = Allocation.createTyped(rs, Type.createXY(rs, Element.F32(rs), alignment_width, alignment_height));
+            processAvgScript.forEach_compute_diff(allocations[0], allocation_diffs);
+            processAvgScript.set_scale_align_size(scale_align_size);
+            processAvgScript.set_allocation_diffs(allocation_diffs);
+            */
 
             if( scale_align ) {
                 for(int i=0;i<offsets_x.length;i++) {
@@ -1474,24 +1474,24 @@ public class HDRProcessor {
         }
         //ScriptC_process_avg processAvgScript = new ScriptC_process_avg(rs);
 
-		/*final boolean separate_first_pass = false; // whether to convert the first two images in separate passes (reduces memory)
-		if( first && separate_first_pass ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "### time before convert_to_f: " + (System.currentTimeMillis() - time_s));
-			processAvgScript.forEach_convert_to_f(allocation_avg, allocation_out);
-			if( MyDebug.LOG )
-				Log.d(TAG, "### time after convert_to_f: " + (System.currentTimeMillis() - time_s));
-			if( free_allocation_avg ) {
-				allocation_avg.destroy();
-				free_allocation_avg = false;
-			}
-			if( MyDebug.LOG )
-				Log.d(TAG, "release bitmap_avg");
-			bitmap_avg.recycle();
-			bitmap_avg = null;
-			allocation_avg = allocation_out;
-			first = false;
-		}*/
+        /*final boolean separate_first_pass = false; // whether to convert the first two images in separate passes (reduces memory)
+        if( first && separate_first_pass ) {
+            if( MyDebug.LOG )
+                Log.d(TAG, "### time before convert_to_f: " + (System.currentTimeMillis() - time_s));
+            processAvgScript.forEach_convert_to_f(allocation_avg, allocation_out);
+            if( MyDebug.LOG )
+                Log.d(TAG, "### time after convert_to_f: " + (System.currentTimeMillis() - time_s));
+            if( free_allocation_avg ) {
+                allocation_avg.destroy();
+                free_allocation_avg = false;
+            }
+            if( MyDebug.LOG )
+                Log.d(TAG, "release bitmap_avg");
+            //bitmap_avg.recycle();
+            //bitmap_avg = null;
+            allocation_avg = allocation_out;
+            first = false;
+        }*/
 
         if( allocation_new == null ) {
             allocation_new = Allocation.createFromBitmap(rs, bitmap_new);
@@ -1563,11 +1563,11 @@ public class HDRProcessor {
         processAvgScript.set_wiener_C(wiener_C);
         processAvgScript.set_wiener_C_cutoff(wiener_C_cutoff);
 
-		/*final float max_weight = 0.9375f;
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "max_weight: " + max_weight);
-		}
-		processAvgScript.set_max_weight(max_weight);*/
+        /*final float max_weight = 0.9375f;
+        if( MyDebug.LOG ) {
+            Log.d(TAG, "max_weight: " + max_weight);
+        }
+        processAvgScript.set_max_weight(max_weight);*/
 
         if( MyDebug.LOG )
             Log.d(TAG, "call processAvgScript");
@@ -1658,28 +1658,28 @@ public class HDRProcessor {
             Log.d(TAG, "### time after creating allocations from bitmaps: " + (System.currentTimeMillis() - time_s));
 
         // perform auto-alignment
-		/*for(int i=1;i<bitmaps.size();i++) {
-		{
-			List<Bitmap> bitmaps2 = new ArrayList<>();
-			bitmaps2.add(bitmaps.get(0));
-			bitmaps2.add(bitmap.get(i));
-			Allocation [] allocations = new Allocation[2];
-			allocations[0] = allocation_avg;
-			allocations[1] = allocation_new;
-			BrightnessDetails brightnessDetails = autoAlignment(offsets_x, offsets_y, allocations, width, height, bitmaps, 0, true, null, true, time_s);
-			int median_brightness = brightnessDetails.median_brightness;
-			if( MyDebug.LOG ) {
-				Log.d(TAG, "### time after autoAlignment: " + (System.currentTimeMillis() - time_s));
-				Log.d(TAG, "median_brightness: " + median_brightness);
-			}
-		}*/
+        /*for(int i=1;i<bitmaps.size();i++) {
+        {
+            List<Bitmap> bitmaps2 = new ArrayList<>();
+            bitmaps2.add(bitmaps.get(0));
+            bitmaps2.add(bitmap.get(i));
+            Allocation [] allocations = new Allocation[2];
+            allocations[0] = allocation_avg;
+            allocations[1] = allocation_new;
+            BrightnessDetails brightnessDetails = autoAlignment(offsets_x, offsets_y, allocations, width, height, bitmaps, 0, true, null, true, time_s);
+            int median_brightness = brightnessDetails.median_brightness;
+            if( MyDebug.LOG ) {
+                Log.d(TAG, "### time after autoAlignment: " + (System.currentTimeMillis() - time_s));
+                Log.d(TAG, "median_brightness: " + median_brightness);
+            }
+        }*/
 
         // write new avg image
 
         // create RenderScript
-		/*if( processAvgScript == null ) {
-			processAvgScript = new ScriptC_process_avg(rs);
-		}*/
+        /*if( processAvgScript == null ) {
+            processAvgScript = new ScriptC_process_avg(rs);
+        }*/
         ScriptC_process_avg processAvgScript = new ScriptC_process_avg(rs);
 
         // set allocations
@@ -1918,14 +1918,14 @@ public class HDRProcessor {
                 if( MyDebug.LOG )
                     Log.d(TAG, i + ": median_value: " + median_value);
 
-				/*if( median_value < 16 ) {
-					// needed for testHDR2, testHDR28
-					if( MyDebug.LOG )
-						Log.d(TAG, "image too dark to do alignment");
-					mtb_allocations[i] = null;
+                /*if( median_value < 16 ) {
+                    // needed for testHDR2, testHDR28
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "image too dark to do alignment");
+                    mtb_allocations[i] = null;
 
-					continue;
-				}*/
+                    continue;
+                }*/
             }
 
             if( use_mtb && luminanceInfos[i].noisy ) {
@@ -1973,31 +1973,31 @@ public class HDRProcessor {
             if( MyDebug.LOG )
                 Log.d(TAG, "time after createMTBScript: " + (System.currentTimeMillis() - time_s));
 
-			/*if( MyDebug.LOG ) {
-				// debugging
-				byte [] mtb_bytes = new byte[mtb_width*mtb_height];
-				mtb_allocations[i].copyTo(mtb_bytes);
-				int [] pixels = new int[mtb_width*mtb_height];
-				for(int j=0;j<mtb_width*mtb_height;j++) {
-					int b = mtb_bytes[j];
-					if( b < 0 )
-						b += 255;
-					pixels[j] = Color.argb(255, b, b, b);
-				}
-				Bitmap mtb_bitmap = Bitmap.createBitmap(pixels, mtb_width, mtb_height, Bitmap.Config.ARGB_8888);
-				File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/mtb_bitmap" + i + ".jpg");
-				try {
-					OutputStream outputStream = new FileOutputStream(file);
-					mtb_bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
-					outputStream.close();
-					MainActivity mActivity = (MainActivity) context;
-					mActivity.getStorageUtils().broadcastFile(file, true, false, true);
-				}
-				catch(IOException e) {
-					e.printStackTrace();
-				}
-				mtb_bitmap.recycle();
-			}*/
+            /*if( MyDebug.LOG ) {
+                // debugging
+                byte [] mtb_bytes = new byte[mtb_width*mtb_height];
+                mtb_allocations[i].copyTo(mtb_bytes);
+                int [] pixels = new int[mtb_width*mtb_height];
+                for(int j=0;j<mtb_width*mtb_height;j++) {
+                    int b = mtb_bytes[j];
+                    if( b < 0 )
+                        b += 255;
+                    pixels[j] = Color.argb(255, b, b, b);
+                }
+                Bitmap mtb_bitmap = Bitmap.createBitmap(pixels, mtb_width, mtb_height, Bitmap.Config.ARGB_8888);
+                File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/mtb_bitmap" + i + ".jpg");
+                try {
+                    OutputStream outputStream = new FileOutputStream(file);
+                    mtb_bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                    outputStream.close();
+                    MainActivity mActivity = (MainActivity) context;
+                    mActivity.getStorageUtils().broadcastFile(file, true, false, true);
+                }
+                catch(IOException e) {
+                    e.printStackTrace();
+                }
+                mtb_bitmap.recycle();
+            }*/
         }
         if( MyDebug.LOG )
             Log.d(TAG, "### time after all createMTBScript: " + (System.currentTimeMillis() - time_s));
@@ -2077,37 +2077,37 @@ public class HDRProcessor {
 
                 final boolean use_pyramid = false;
                 //final boolean use_pyramid = true;
-				/*if( use_pyramid ) {
-					// downscale by step_size
-					Allocation [] scaled_allocations = new Allocation[2];
-					for(int j=0;j<2;j++) {
-						int scaled_width = mtb_width/step_size;
-						int scaled_height = mtb_height/step_size;
-						if( MyDebug.LOG ) {
-							Log.d(TAG, "create scaled image: " + j);
-							Log.d(TAG, "    scaled_width: " + scaled_width);
-							Log.d(TAG, "    scaled_height: " + scaled_height);
-						}
-						Allocation allocation_to_scale = mtb_allocations[(j==0) ? base_bitmap : i];
-						Type type = Type.createXY(rs, allocation_to_scale.getElement(), scaled_width, scaled_height);
-						scaled_allocations[j] = Allocation.createTyped(rs, type);
-						ScriptIntrinsicResize theIntrinsic = ScriptIntrinsicResize.create(rs);
-						theIntrinsic.setInput(allocation_to_scale);
-						theIntrinsic.forEach_bicubic(scaled_allocations[j]);
-					}
-					alignMTBScript.set_bitmap0(scaled_allocations[0]);
-					alignMTBScript.set_bitmap1(scaled_allocations[1]);
-					int off_x = offsets_x[i]/step_size;
-					int off_y = offsets_y[i]/step_size;
-					if( MyDebug.LOG ) {
-						Log.d(TAG, "off_x: " + off_x);
-						Log.d(TAG, "off_y: " + off_y);
-					}
-					alignMTBScript.set_off_x( off_x );
-					alignMTBScript.set_off_y( off_y );
-					alignMTBScript.set_step_size( 1 );
-				}
-				else*/ {
+                /*if( use_pyramid ) {
+                    // downscale by step_size
+                    Allocation [] scaled_allocations = new Allocation[2];
+                    for(int j=0;j<2;j++) {
+                        int scaled_width = mtb_width/step_size;
+                        int scaled_height = mtb_height/step_size;
+                        if( MyDebug.LOG ) {
+                            Log.d(TAG, "create scaled image: " + j);
+                            Log.d(TAG, "    scaled_width: " + scaled_width);
+                            Log.d(TAG, "    scaled_height: " + scaled_height);
+                        }
+                        Allocation allocation_to_scale = mtb_allocations[(j==0) ? base_bitmap : i];
+                        Type type = Type.createXY(rs, allocation_to_scale.getElement(), scaled_width, scaled_height);
+                        scaled_allocations[j] = Allocation.createTyped(rs, type);
+                        ScriptIntrinsicResize theIntrinsic = ScriptIntrinsicResize.create(rs);
+                        theIntrinsic.setInput(allocation_to_scale);
+                        theIntrinsic.forEach_bicubic(scaled_allocations[j]);
+                    }
+                    alignMTBScript.set_bitmap0(scaled_allocations[0]);
+                    alignMTBScript.set_bitmap1(scaled_allocations[1]);
+                    int off_x = offsets_x[i]/step_size;
+                    int off_y = offsets_y[i]/step_size;
+                    if( MyDebug.LOG ) {
+                        Log.d(TAG, "off_x: " + off_x);
+                        Log.d(TAG, "off_y: " + off_y);
+                    }
+                    alignMTBScript.set_off_x( off_x );
+                    alignMTBScript.set_off_y( off_y );
+                    alignMTBScript.set_step_size( 1 );
+                }
+                else*/ {
                     alignMTBScript.set_off_x( offsets_x[i] );
                     alignMTBScript.set_off_y( offsets_y[i] );
                     alignMTBScript.set_step_size( pixel_step_size );
@@ -2161,33 +2161,33 @@ public class HDRProcessor {
                     Log.e(TAG, "    auto-alignment failed due to overflow");
                     // hitting overflow means behaviour will be unstable under SMP, and auto-alignment won't be reliable anyway
                     best_id = 4; // default to centre
-					if( is_test ) {
-						throw new RuntimeException();
-					}
+                    if( is_test ) {
+                        throw new RuntimeException();
+                    }
                 }
-				/*if( best_id != 4 ) {
-					int this_off_x = best_id % 3;
-					int this_off_y = best_id/3;
-					this_off_x--;
-					this_off_y--;
-					for(int j=0;j<9;j++) {
-						int that_off_x = j % 3;
-						int that_off_y = j/3;
-						that_off_x--;
-						that_off_y--;
-						if( this_off_x * that_off_x == -1 || this_off_y * that_off_y == -1 ) {
-							float diff = ((float)(best_error - errors[j]))/(float)errors[j];
-							if( MyDebug.LOG )
-								Log.d(TAG, "    opposite errors[" + j + "] diff: " + diff);
-							if( Math.abs(diff) <= 0.02f ) {
-								if( MyDebug.LOG )
-									Log.d(TAG, "    reject auto-alignment");
-								best_id = 4;
-								break;
-							}
-						}
-					}
-				}*/
+                /*if( best_id != 4 ) {
+                    int this_off_x = best_id % 3;
+                    int this_off_y = best_id/3;
+                    this_off_x--;
+                    this_off_y--;
+                    for(int j=0;j<9;j++) {
+                        int that_off_x = j % 3;
+                        int that_off_y = j/3;
+                        that_off_x--;
+                        that_off_y--;
+                        if( this_off_x * that_off_x == -1 || this_off_y * that_off_y == -1 ) {
+                            float diff = ((float)(best_error - errors[j]))/(float)errors[j];
+                            if( MyDebug.LOG )
+                                Log.d(TAG, "    opposite errors[" + j + "] diff: " + diff);
+                            if( Math.abs(diff) <= 0.02f ) {
+                                if( MyDebug.LOG )
+                                    Log.d(TAG, "    reject auto-alignment");
+                                best_id = 4;
+                                break;
+                            }
+                        }
+                    }
+                }*/
                 if( best_id != -1 ) {
                     int this_off_x = best_id % 3;
                     int this_off_y = best_id/3;
@@ -2203,9 +2203,9 @@ public class HDRProcessor {
                         Log.d(TAG, "offsets_x is now: " + offsets_x[i]);
                         Log.d(TAG, "offsets_y is now: " + offsets_y[i]);
                     }
-					/*if( wider && step_size == initial_step_size/2 && (this_off_x != 0 || this_off_y != 0 ) ) {
-						throw new RuntimeException(); // test
-					}*/
+                    /*if( wider && step_size == initial_step_size/2 && (this_off_x != 0 || this_off_y != 0 ) ) {
+                        throw new RuntimeException(); // test
+                    }*/
                 }
             }
             if( MyDebug.LOG ) {
@@ -2215,10 +2215,10 @@ public class HDRProcessor {
             }
         }
 
-		/*for(int i=0;i<allocations.length;i++) {
-			offsets_x[i] = 0;
-			offsets_y[i] = 0;
-		}*/
+        /*for(int i=0;i<allocations.length;i++) {
+            offsets_x[i] = 0;
+            offsets_y[i] = 0;
+        }*/
         for(int i=0;i<mtb_allocations.length;i++) {
             if( mtb_allocations[i] != null ) {
                 mtb_allocations[i].destroy();
@@ -2287,8 +2287,8 @@ public class HDRProcessor {
                 double beta = ((double) x + 1.0) / ((double) n_w_samples + 1.0);
                 //int x_coord = (int) (beta * bitmap.getWidth());
                 int x_coord = mtb_x + (int) (beta * mtb_width);
-				/*if( MyDebug.LOG )
-					Log.d(TAG, "sample value from " + x_coord + " , " + y_coord);*/
+                /*if( MyDebug.LOG )
+                    Log.d(TAG, "sample value from " + x_coord + " , " + y_coord);*/
                 int color = bitmap.getPixel(x_coord, y_coord);
                 int r = (color & 0xFF0000) >> 16;
                 int g = (color & 0xFF00) >> 8;
@@ -2300,9 +2300,9 @@ public class HDRProcessor {
                 total++;
             }
         }
-		/*float avg_luminance = (float)(Math.exp( sum_log_luminance / total ));
-		if( MyDebug.LOG )
-			Log.d(TAG, "avg_luminance: " + avg_luminance);*/
+        /*float avg_luminance = (float)(Math.exp( sum_log_luminance / total ));
+        if( MyDebug.LOG )
+            Log.d(TAG, "avg_luminance: " + avg_luminance);*/
         int middle = total/2;
         int count = 0;
         boolean noisy = false;
@@ -2384,50 +2384,50 @@ public class HDRProcessor {
                 Log.d(TAG, "time after creating histogram: " + (System.currentTimeMillis() - time_s));
             histogramAllocation.copyTo(histogram);
 
-				/*if( MyDebug.LOG ) {
-					// compare/adjust
-					allocations[0].copyTo(bm);
-					int [] debug_histogram = new int[256];
-					for(int i=0;i<256;i++) {
-						debug_histogram[i] = 0;
-					}
-					int [] debug_buffer = new int[width];
-					for(int y=0;y<height;y++) {
-						bm.getPixels(debug_buffer, 0, width, 0, y, width, 1);
-						for(int x=0;x<width;x++) {
-							int color = debug_buffer[x];
-							float r = (float)((color & 0xFF0000) >> 16);
-							float g = (float)((color & 0xFF00) >> 8);
-							float b = (float)(color & 0xFF);
-							//float value = 0.299f*r + 0.587f*g + 0.114f*b; // matches ScriptIntrinsicHistogram default behaviour
-							float value = Math.max(r, g);
-							value = Math.max(value, b);
-							int i_value = (int)value;
-							i_value = Math.min(255, i_value); // just in case
-							debug_histogram[i_value]++;
-						}
-					}
-					for(int x=0;x<256;x++) {
-						Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " debug_histogram: " + debug_histogram[x]);
-						//histogram[x] = debug_histogram[x];
-					}
-				}*/
+                /*if( MyDebug.LOG ) {
+                    // compare/adjust
+                    allocations[0].copyTo(bm);
+                    int [] debug_histogram = new int[256];
+                    for(int i=0;i<256;i++) {
+                        debug_histogram[i] = 0;
+                    }
+                    int [] debug_buffer = new int[width];
+                    for(int y=0;y<height;y++) {
+                        bm.getPixels(debug_buffer, 0, width, 0, y, width, 1);
+                        for(int x=0;x<width;x++) {
+                            int color = debug_buffer[x];
+                            float r = (float)((color & 0xFF0000) >> 16);
+                            float g = (float)((color & 0xFF00) >> 8);
+                            float b = (float)(color & 0xFF);
+                            //float value = 0.299f*r + 0.587f*g + 0.114f*b; // matches ScriptIntrinsicHistogram default behaviour
+                            float value = Math.max(r, g);
+                            value = Math.max(value, b);
+                            int i_value = (int)value;
+                            i_value = Math.min(255, i_value); // just in case
+                            debug_histogram[i_value]++;
+                        }
+                    }
+                    for(int x=0;x<256;x++) {
+                        Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " debug_histogram: " + debug_histogram[x]);
+                        //histogram[x] = debug_histogram[x];
+                    }
+                }*/
 
             int [] c_histogram = new int[256];
             c_histogram[0] = histogram[0];
             for(int x=1;x<256;x++) {
                 c_histogram[x] = c_histogram[x-1] + histogram[x];
             }
-				/*if( MyDebug.LOG ) {
-					for(int x=0;x<256;x++) {
-						Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " cumulative: " + c_histogram[x]);
-					}
-				}*/
+                /*if( MyDebug.LOG ) {
+                    for(int x=0;x<256;x++) {
+                        Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " cumulative: " + c_histogram[x]);
+                    }
+                }*/
             histogramAllocation.copyFrom(c_histogram);
 
-			/*if( histogramAdjustScript == null ) {
-				histogramAdjustScript = new ScriptC_histogram_adjust(rs);
-			}*/
+            /*if( histogramAdjustScript == null ) {
+                histogramAdjustScript = new ScriptC_histogram_adjust(rs);
+            }*/
             ScriptC_histogram_adjust histogramAdjustScript = new ScriptC_histogram_adjust(rs);
             histogramAdjustScript.set_c_histogram(histogramAllocation);
             histogramAdjustScript.set_hdr_alpha(hdr_alpha);
@@ -2453,11 +2453,11 @@ public class HDRProcessor {
 
             // create histograms
             Allocation histogramAllocation = Allocation.createSized(rs, Element.I32(rs), 256);
-			/*if( histogramScript == null ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "create histogramScript");
-				histogramScript = new ScriptC_histogram_compute(rs);
-			}*/
+            /*if( histogramScript == null ) {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "create histogramScript");
+                histogramScript = new ScriptC_histogram_compute(rs);
+            }*/
             if( MyDebug.LOG )
                 Log.d(TAG, "create histogramScript");
             ScriptC_histogram_compute histogramScript = new ScriptC_histogram_compute(rs);
@@ -2484,14 +2484,14 @@ public class HDRProcessor {
                     int stop_y = (int)(b1 * height);
                     if( stop_y == start_y )
                         continue;
-						/*if( MyDebug.LOG )
-							Log.d(TAG, i + " , " + j + " : " + start_x + " , " + start_y + " to " + stop_x + " , " + stop_y);*/
+                        /*if( MyDebug.LOG )
+                            Log.d(TAG, i + " , " + j + " : " + start_x + " , " + start_y + " to " + stop_x + " , " + stop_y);*/
                     Script.LaunchOptions launch_options = new Script.LaunchOptions();
                     launch_options.setX(start_x, stop_x);
                     launch_options.setY(start_y, stop_y);
 
-						/*if( MyDebug.LOG )
-							Log.d(TAG, "call histogramScript");*/
+                        /*if( MyDebug.LOG )
+                            Log.d(TAG, "call histogramScript");*/
                     histogramScript.invoke_init_histogram();
                     // We compute a histogram based on the max RGB value, so this matches with the scaling we do in histogram_adjust.rs.
                     // This improves the look of the grass in testHDR24, testHDR27.
@@ -2500,39 +2500,39 @@ public class HDRProcessor {
                     int [] histogram = new int[256];
                     histogramAllocation.copyTo(histogram);
 
-						/*if( MyDebug.LOG ) {
-							// compare/adjust
-							allocations[0].copyTo(bm);
-							int [] debug_histogram = new int[256];
-							for(int k=0;k<256;k++) {
-								debug_histogram[k] = 0;
-							}
-							int [] debug_buffer = new int[width];
-							for(int y=start_y;y<stop_y;y++) {
-								bm.getPixels(debug_buffer, 0, width, 0, y, width, 1);
-								for(int x=start_x;x<stop_x;x++) {
-									int color = debug_buffer[x];
-									float r = (float)((color & 0xFF0000) >> 16);
-									float g = (float)((color & 0xFF00) >> 8);
-									float b = (float)(color & 0xFF);
-									//float value = 0.299f*r + 0.587f*g + 0.114f*b; // matches ScriptIntrinsicHistogram default behaviour
-									float value = Math.max(r, g);
-									value = Math.max(value, b);
-									int i_value = (int)value;
-									i_value = Math.min(255, i_value); // just in case
-									debug_histogram[i_value]++;
-								}
-							}
-							for(int x=0;x<256;x++) {
-								Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " debug_histogram: " + debug_histogram[x]);
-								//histogram[x] = debug_histogram[x];
-							}
-						}*/
+                        /*if( MyDebug.LOG ) {
+                            // compare/adjust
+                            allocations[0].copyTo(bm);
+                            int [] debug_histogram = new int[256];
+                            for(int k=0;k<256;k++) {
+                                debug_histogram[k] = 0;
+                            }
+                            int [] debug_buffer = new int[width];
+                            for(int y=start_y;y<stop_y;y++) {
+                                bm.getPixels(debug_buffer, 0, width, 0, y, width, 1);
+                                for(int x=start_x;x<stop_x;x++) {
+                                    int color = debug_buffer[x];
+                                    float r = (float)((color & 0xFF0000) >> 16);
+                                    float g = (float)((color & 0xFF00) >> 8);
+                                    float b = (float)(color & 0xFF);
+                                    //float value = 0.299f*r + 0.587f*g + 0.114f*b; // matches ScriptIntrinsicHistogram default behaviour
+                                    float value = Math.max(r, g);
+                                    value = Math.max(value, b);
+                                    int i_value = (int)value;
+                                    i_value = Math.min(255, i_value); // just in case
+                                    debug_histogram[i_value]++;
+                                }
+                            }
+                            for(int x=0;x<256;x++) {
+                                Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " debug_histogram: " + debug_histogram[x]);
+                                //histogram[x] = debug_histogram[x];
+                            }
+                        }*/
 
                     // clip histogram, for Contrast Limited AHE algorithm
                     int n_pixels = (stop_x - start_x) * (stop_y - start_y);
                     int clip_limit = (5 * n_pixels) / 256;
-					/*if( MyDebug.LOG ) {
+                    /*if( MyDebug.LOG ) {
                         Log.d(TAG, "clip_limit: " + clip_limit);
                         Log.d(TAG, "    relative clip limit: " + clip_limit*256.0f/n_pixels);
                     }*/
@@ -2569,10 +2569,10 @@ public class HDRProcessor {
                         }
                     }
                     int n_clipped_per_bucket = n_clipped / 256;
-						/*if( MyDebug.LOG ) {
-							Log.d(TAG, "n_clipped: " + n_clipped);
-							Log.d(TAG, "n_clipped_per_bucket: " + n_clipped_per_bucket);
-						}*/
+                        /*if( MyDebug.LOG ) {
+                            Log.d(TAG, "n_clipped: " + n_clipped);
+                            Log.d(TAG, "n_clipped_per_bucket: " + n_clipped_per_bucket);
+                        }*/
                     for(int x=0;x<256;x++) {
                         histogram[x] += n_clipped_per_bucket;
                     }
@@ -2622,8 +2622,8 @@ public class HDRProcessor {
                             if( MyDebug.LOG )
                                 Log.d(TAG, "x: " + x + " ; limit: " + limit);
                             /*histogram[x] = Math.max(histogram[x], limit);
-							if( MyDebug.LOG )
-								Log.d(TAG, "    histogram pulled up to: "  + histogram[x]);*/
+                            if( MyDebug.LOG )
+                                Log.d(TAG, "    histogram pulled up to: "  + histogram[x]);*/
                             if( histogram[x] < limit ) {
                                 // top up by redistributing later values
                                 for(int y=x+1;y<256 && histogram[x] < limit;y++) {
@@ -2636,8 +2636,8 @@ public class HDRProcessor {
                                 }
                                 if( MyDebug.LOG )
                                     Log.d(TAG, "    histogram pulled up to: "  + histogram[x]);
-	                        	/*if( temp_c_histogram[x] >= c_equal_limit )
-                        			throw new RuntimeException(); // test*/
+                                /*if( temp_c_histogram[x] >= c_equal_limit )
+                                    throw new RuntimeException(); // test*/
                             }
                         }
                     }
@@ -2661,9 +2661,9 @@ public class HDRProcessor {
 
             Allocation c_histogramAllocation = Allocation.createSized(rs, Element.I32(rs), n_tiles*n_tiles*256);
             c_histogramAllocation.copyFrom(c_histogram);
-			/*if( histogramAdjustScript == null ) {
-				histogramAdjustScript = new ScriptC_histogram_adjust(rs);
-			}*/
+            /*if( histogramAdjustScript == null ) {
+                histogramAdjustScript = new ScriptC_histogram_adjust(rs);
+            }*/
             ScriptC_histogram_adjust histogramAdjustScript = new ScriptC_histogram_adjust(rs);
             histogramAdjustScript.set_c_histogram(c_histogramAllocation);
             histogramAdjustScript.set_hdr_alpha(hdr_alpha);
@@ -2696,11 +2696,11 @@ public class HDRProcessor {
         //final boolean use_custom_histogram = false;
         final boolean use_custom_histogram = true;
         if( use_custom_histogram ) {
-			/*if( histogramScript == null ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "create histogramScript");
-				histogramScript = new ScriptC_histogram_compute(rs);
-			}*/
+            /*if( histogramScript == null ) {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "create histogramScript");
+                histogramScript = new ScriptC_histogram_compute(rs);
+            }*/
             if( MyDebug.LOG )
                 Log.d(TAG, "create histogramScript");
             ScriptC_histogram_compute histogramScript = new ScriptC_histogram_compute(rs);
@@ -2906,35 +2906,35 @@ public class HDRProcessor {
         if( MyDebug.LOG )
             Log.d(TAG, "max_possible_value: " + max_possible_value);
 
-		/*if( max_possible_value > 255.0f ) {
-			gain = 255.0f / max_brightness;
-			if( MyDebug.LOG )
-				Log.d(TAG, "limit gain to: " + gain);
-			// use gamma correction for the remainder
-			if( brightness_target > gain * brightness ) {
-				gamma = (float) (Math.log(brightness_target / 255.0f) / Math.log(gain * brightness / 255.0f));
-			}
-		}
+        /*if( max_possible_value > 255.0f ) {
+            gain = 255.0f / max_brightness;
+            if( MyDebug.LOG )
+                Log.d(TAG, "limit gain to: " + gain);
+            // use gamma correction for the remainder
+            if( brightness_target > gain * brightness ) {
+                gamma = (float) (Math.log(brightness_target / 255.0f) / Math.log(gain * brightness / 255.0f));
+            }
+        }
 
-		//float gamma = (float)(Math.log(brightness_target/255.0f) / Math.log(brightness/255.0f));
-		if( MyDebug.LOG )
-			Log.d(TAG, "gamma " + gamma);
-		final float min_gamma_non_bright_c = 0.75f;
-		//final float min_gamma_non_bright_c = 0.5f;
-		if( gamma > 1.0f ) {
-			gamma = 1.0f;
-			if( MyDebug.LOG ) {
-				Log.d(TAG, "clamped gamma to : " + gamma);
-			}
-		}
-		else if( has_iso_exposure && iso > 150 && gamma < min_gamma_non_bright_c ) {
-			// too small gamma on non-bright reduces contrast too much (e.g., see testAvg9)
-			// however we can't clamp too much, see testAvg28, testAvg32
-			gamma = min_gamma_non_bright_c;
-			if( MyDebug.LOG ) {
-				Log.d(TAG, "clamped gamma to : " + gamma);
-			}
-		}*/
+        //float gamma = (float)(Math.log(brightness_target/255.0f) / Math.log(brightness/255.0f));
+        if( MyDebug.LOG )
+            Log.d(TAG, "gamma " + gamma);
+        final float min_gamma_non_bright_c = 0.75f;
+        //final float min_gamma_non_bright_c = 0.5f;
+        if( gamma > 1.0f ) {
+            gamma = 1.0f;
+            if( MyDebug.LOG ) {
+                Log.d(TAG, "clamped gamma to : " + gamma);
+            }
+        }
+        else if( has_iso_exposure && iso > 150 && gamma < min_gamma_non_bright_c ) {
+            // too small gamma on non-bright reduces contrast too much (e.g., see testAvg9)
+            // however we can't clamp too much, see testAvg28, testAvg32
+            gamma = min_gamma_non_bright_c;
+            if( MyDebug.LOG ) {
+                Log.d(TAG, "clamped gamma to : " + gamma);
+            }
+        }*/
 
         float mid_x = 255.5f;
         if( max_possible_value > 255.0f ) {
@@ -3020,27 +3020,27 @@ public class HDRProcessor {
         float gamma = brighten_factors.gamma;
 
         //float gain = brightness_target / (float)brightness;
-		/*float gamma = (float)(Math.log(max_target/(float)brightness_target) / Math.log(max_brightness/(float)brightness));
-		float gain = brightness_target / ((float)Math.pow(brightness/255.0f, gamma) * 255.0f);
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "gamma " + gamma);
-			Log.d(TAG, "gain " + gain);
-			Log.d(TAG, "gain2 " + max_target / ((float)Math.pow(max_brightness/255.0f, gamma) * 255.0f));
-		}*/
-		/*float gain = brightness_target / (float)brightness;
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "gain: " + gain);
-		}
-		if( gain < 1.0f ) {
-			gain = 1.0f;
-			if( MyDebug.LOG ) {
-				Log.d(TAG, "clamped gain to : " + gain);
-			}
-		}*/
+        /*float gamma = (float)(Math.log(max_target/(float)brightness_target) / Math.log(max_brightness/(float)brightness));
+        float gain = brightness_target / ((float)Math.pow(brightness/255.0f, gamma) * 255.0f);
+        if( MyDebug.LOG ) {
+            Log.d(TAG, "gamma " + gamma);
+            Log.d(TAG, "gain " + gain);
+            Log.d(TAG, "gain2 " + max_target / ((float)Math.pow(max_brightness/255.0f, gamma) * 255.0f));
+        }*/
+        /*float gain = brightness_target / (float)brightness;
+        if( MyDebug.LOG ) {
+            Log.d(TAG, "gain: " + gain);
+        }
+        if( gain < 1.0f ) {
+            gain = 1.0f;
+            if( MyDebug.LOG ) {
+                Log.d(TAG, "clamped gain to : " + gain);
+            }
+        }*/
 
-		/*if( avgBrightenScript == null ) {
-			avgBrightenScript = new ScriptC_avg_brighten(rs);
-		}*/
+        /*if( avgBrightenScript == null ) {
+            avgBrightenScript = new ScriptC_avg_brighten(rs);
+        }*/
         ScriptC_avg_brighten avgBrightenScript = new ScriptC_avg_brighten(rs);
         avgBrightenScript.set_bitmap(input);
         float black_level = 0.0f;
@@ -3076,47 +3076,47 @@ public class HDRProcessor {
         avgBrightenScript.set_median_filter_strength(median_filter_strength);
         avgBrightenScript.invoke_setBrightenParameters(gain, gamma, low_x, mid_x, max_brightness);
 
-		/*float tonemap_scale_c = 255.0f;
-		if( MyDebug.LOG )
-			Log.d(TAG, "tonemap_scale_c: " + tonemap_scale_c);
-		avgBrightenScript.set_tonemap_scale(tonemap_scale_c);
+        /*float tonemap_scale_c = 255.0f;
+        if( MyDebug.LOG )
+            Log.d(TAG, "tonemap_scale_c: " + tonemap_scale_c);
+        avgBrightenScript.set_tonemap_scale(tonemap_scale_c);
 
-		float max_possible_value = gain*max_brightness;
-		if( MyDebug.LOG )
-			Log.d(TAG, "max_possible_value: " + max_possible_value);
-		if( max_possible_value < 255.0f ) {
-			max_possible_value = 255.0f; // don't make dark images too bright
-			if( MyDebug.LOG )
-				Log.d(TAG, "clamp max_possible_value to: " + max_possible_value);
-		}
-		float linear_scale = (max_possible_value + tonemap_scale_c) / max_possible_value;
-		if( MyDebug.LOG )
-			Log.d(TAG, "linear_scale: " + linear_scale);
-		avgBrightenScript.set_linear_scale(linear_scale);*/
+        float max_possible_value = gain*max_brightness;
+        if( MyDebug.LOG )
+            Log.d(TAG, "max_possible_value: " + max_possible_value);
+        if( max_possible_value < 255.0f ) {
+            max_possible_value = 255.0f; // don't make dark images too bright
+            if( MyDebug.LOG )
+                Log.d(TAG, "clamp max_possible_value to: " + max_possible_value);
+        }
+        float linear_scale = (max_possible_value + tonemap_scale_c) / max_possible_value;
+        if( MyDebug.LOG )
+            Log.d(TAG, "linear_scale: " + linear_scale);
+        avgBrightenScript.set_linear_scale(linear_scale);*/
 
-		/*{
-			max_possible_value = max_brightness;
-			float tonemap_scale_c = 255.0f;
-			if( 255.0f / max_possible_value < ((float)brightness_target)/(float)brightness + brightness_target / 255.0f - 1.0f ) {
-				final float tonemap_denom = ((float)brightness_target)/(float)brightness - (255.0f / max_possible_value);
-				if( MyDebug.LOG )
-					Log.d(TAG, "tonemap_denom: " + tonemap_denom);
-				if( tonemap_denom != 0.0f ) // just in case
-					tonemap_scale_c = (255.0f - brightness_target) / tonemap_denom;
-				//throw new RuntimeException(); // test
-			}
-			// Higher tonemap_scale_c values means darker results from the Reinhard tonemapping.
-			// Colours brighter than 255-tonemap_scale_c will be made darker, colours darker than 255-tonemap_scale_c will be made brighter
-			// (tonemap_scale_c==255 means therefore that colours will only be made darker).
-			if( MyDebug.LOG )
-				Log.d(TAG, "tonemap_scale_c: " + tonemap_scale_c);
-			avgBrightenScript.set_tonemap_scale(tonemap_scale_c);
+        /*{
+            max_possible_value = max_brightness;
+            float tonemap_scale_c = 255.0f;
+            if( 255.0f / max_possible_value < ((float)brightness_target)/(float)brightness + brightness_target / 255.0f - 1.0f ) {
+                final float tonemap_denom = ((float)brightness_target)/(float)brightness - (255.0f / max_possible_value);
+                if( MyDebug.LOG )
+                    Log.d(TAG, "tonemap_denom: " + tonemap_denom);
+                if( tonemap_denom != 0.0f ) // just in case
+                    tonemap_scale_c = (255.0f - brightness_target) / tonemap_denom;
+                //throw new RuntimeException(); // test
+            }
+            // Higher tonemap_scale_c values means darker results from the Reinhard tonemapping.
+            // Colours brighter than 255-tonemap_scale_c will be made darker, colours darker than 255-tonemap_scale_c will be made brighter
+            // (tonemap_scale_c==255 means therefore that colours will only be made darker).
+            if( MyDebug.LOG )
+                Log.d(TAG, "tonemap_scale_c: " + tonemap_scale_c);
+            avgBrightenScript.set_tonemap_scale(tonemap_scale_c);
 
-			float linear_scale = (max_possible_value + tonemap_scale_c) / max_possible_value;
-			if( MyDebug.LOG )
-				Log.d(TAG, "linear_scale: " + linear_scale);
-			avgBrightenScript.set_linear_scale(linear_scale);
-		}*/
+            float linear_scale = (max_possible_value + tonemap_scale_c) / max_possible_value;
+            if( MyDebug.LOG )
+                Log.d(TAG, "linear_scale: " + linear_scale);
+            avgBrightenScript.set_linear_scale(linear_scale);
+        }*/
 
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Allocation allocation_out = Allocation.createFromBitmap(rs, bitmap);
@@ -3159,16 +3159,16 @@ public class HDRProcessor {
         if( MyDebug.LOG )
             Log.d(TAG, "### time after copying to bitmap: " + (System.currentTimeMillis() - time_s));
 
-		/*int sample_size = getAvgSampleSize();
-		if( MyDebug.LOG )
-			Log.d(TAG, "sample_size: " + sample_size);
-		if( sample_size > 1 ) {
-			Matrix matrix = new Matrix();
-			matrix.postScale(sample_size, sample_size);
-			Bitmap new_bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-			bitmap.recycle();
-			bitmap = new_bitmap;
-		}*/
+        /*int sample_size = getAvgSampleSize();
+        if( MyDebug.LOG )
+            Log.d(TAG, "sample_size: " + sample_size);
+        if( sample_size > 1 ) {
+            Matrix matrix = new Matrix();
+            matrix.postScale(sample_size, sample_size);
+            Bitmap new_bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+            bitmap.recycle();
+            bitmap = new_bitmap;
+        }*/
 
         freeScripts();
         if( MyDebug.LOG )
@@ -3191,11 +3191,11 @@ public class HDRProcessor {
         Allocation sumsAllocation = Allocation.createSized(rs, Element.I32(rs), width);
         if( MyDebug.LOG )
             Log.d(TAG, "### time after createSized: " + (System.currentTimeMillis() - time_s));
-		/*if( sharpnessScript == null ) {
-			sharpnessScript = new ScriptC_calculate_sharpness(rs);
-			if( MyDebug.LOG )
-				Log.d(TAG, "### time after create sharpnessScript: " + (System.currentTimeMillis() - time_s));
-		}*/
+        /*if( sharpnessScript == null ) {
+            sharpnessScript = new ScriptC_calculate_sharpness(rs);
+            if( MyDebug.LOG )
+                Log.d(TAG, "### time after create sharpnessScript: " + (System.currentTimeMillis() - time_s));
+        }*/
         ScriptC_calculate_sharpness sharpnessScript = new ScriptC_calculate_sharpness(rs);
         if( MyDebug.LOG )
             Log.d(TAG, "### time after create sharpnessScript: " + (System.currentTimeMillis() - time_s));
@@ -3218,8 +3218,8 @@ public class HDRProcessor {
         sumsAllocation.destroy();
         float total_sum = 0.0f;
         for(int i=0;i<width;i++) {
-			/*if( MyDebug.LOG )
-				Log.d(TAG, "sums[" + i + "] = " + sums[i]);*/
+            /*if( MyDebug.LOG )
+                Log.d(TAG, "sums[" + i + "] = " + sums[i]);*/
             total_sum += (float)sums[i];
         }
         if( MyDebug.LOG )
