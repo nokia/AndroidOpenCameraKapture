@@ -5724,8 +5724,12 @@ public class MainActivity extends AppCompatActivity {
         if( MyDebug.LOG )
             Log.d(TAG, "initLocation");
         if( app_is_paused ) {
-            Log.e(TAG, "initLocation: app is paused!");
+            if( MyDebug.LOG )
+                Log.d(TAG, "initLocation: app is paused!");
             // we shouldn't need this (as we only call initLocation() when active), but just in case we end up here after onPause...
+            // in fact this happens when we need to grant permission for location - the call to initLocation() from
+            // MainActivity.onRequestPermissionsResult()->PermissionsHandler.onRequestPermissionsResult() will be when the application
+            // is still paused - so we won't do anything here, but instead initLocation() will be called after when resuming.
         }
         else if( camera_in_background ) {
             if( MyDebug.LOG )
