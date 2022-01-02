@@ -199,6 +199,9 @@ public class DeviceScanner extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         if( MyDebug.LOG )
             Log.d(TAG, "onRequestPermissionsResult: requestCode " + requestCode);
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         //noinspection SwitchStatementWithTooFewBranches
         switch (requestCode) {
             case REQUEST_LOCATION_PERMISSIONS: {
