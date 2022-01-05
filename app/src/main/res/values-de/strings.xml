@@ -898,7 +898,7 @@
     <!-- beware of string being too long to display! -->
     <string name="preference_stamp_geo_address_summary">Wenn möglich, nutze eine Adresse bei der Speicherung des GPS Standorts.
         Diese Option erfordert, dass Ihr Gerät Standortdaten über das Internet an einen Dritten überträgt,
-        um GPS-Koordinaten in eine Adresse umzuwandeln. Siehe https://developer.android.com/reference/android/location/Geocoder .
+        um GPS in eine Adresse umzuwandeln. Siehe https://developer.android.com/reference/android/location/Geocoder .
         Gibt keine Garantien für Verfügbarkeit oder Genauigkeit. Es wird nicht garantiert, dass die Ergebnisse aussagekräftig oder korrekt sind.
         \n%s</string>
 
