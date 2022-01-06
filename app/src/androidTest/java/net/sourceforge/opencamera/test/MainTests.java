@@ -37,7 +37,9 @@ public class MainTests {
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testPreviewSize"));
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testPreviewSizeWYSIWYG"));
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testResolutionMaxMP"));
-        suite.addTest(TestSuite.createTest(MainActivityTest.class, "testResolutionBurst"));
+        if( MainActivityTest.test_camera2 ) {
+            suite.addTest(TestSuite.createTest(MainActivityTest.class, "testResolutionBurst"));
+        }
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testAutoFocus"));
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testAutoFocusCorners"));
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testPopup"));
