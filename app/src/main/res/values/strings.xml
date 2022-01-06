@@ -1050,14 +1050,10 @@
     <string name="whats_new_text" translatable="false">
         <small>[This dialog is shown when Open Camera is updated. You can disable it under
             Settings/On screen GUI/Show What\'s New dialog.]</small>
-        \n\n<b>v1.49:</b>\n
+        \n\n<b>v1.49.2:</b>\n
         <ul>
-            <li>Support for portrait and landscape system orientations.\n</li>
-            <li>Minor improvements for NR, DRO and HDR photo modes.\n</li>
-            <li>Video subtitles option now requires Settings/More camera controls/\"Storage Access Framework\" on Android 11, this is due to changes on Android 11.\n</li>
-            <li>Fixed manual white balance.\n</li>
-            <li>Fixes for Android 11.\n</li>
-            <li>Bug fixes and other improvements.\n</li>
+            <li>Fixed crash for NR photo mode on some devices since version 1.49.\n</li>
+            <li>Support for latest emoji (e.g. for custom text stamp).\n</li>
         </ul>
     </string>
 </resources>
