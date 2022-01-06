@@ -1135,12 +1135,14 @@ public class HDRProcessor {
         public Allocation allocation_out;
         Bitmap bitmap_avg_align;
         Allocation allocation_avg_align;
+        Bitmap bitmap_orig; // first bitmap, need to keep until all images are processed, due to being used for allocation_orig
         Allocation allocation_orig; // saved version of the first allocation
 
-        AvgData(Allocation allocation_out, Bitmap bitmap_avg_align, Allocation allocation_avg_align, Allocation allocation_orig) {
+        AvgData(Allocation allocation_out, Bitmap bitmap_avg_align, Allocation allocation_avg_align, Bitmap bitmap_orig, Allocation allocation_orig) {
             this.allocation_out = allocation_out;
             this.bitmap_avg_align = bitmap_avg_align;
             this.allocation_avg_align = allocation_avg_align;
+            this.bitmap_orig = bitmap_orig;
             this.allocation_orig = allocation_orig;
         }
 
@@ -1158,6 +1160,10 @@ public class HDRProcessor {
             if( allocation_avg_align != null ) {
                 allocation_avg_align.destroy();
                 allocation_avg_align = null;
+            }
+            if( bitmap_orig != null ) {
+                bitmap_orig.recycle();
+                bitmap_orig = null;
             }
             if( allocation_orig != null ) {
                 allocation_orig.destroy();
@@ -1289,8 +1295,8 @@ public class HDRProcessor {
      *                       new one will be created.
      * @param allocation_avg If non-null, an allocation for the averaged image so far. If null, the
      *                       first bitmap should be supplied as bitmap_avg.
-     * @param bitmap_avg     If non-null, the first bitmap (which will be recycled). If null, an
-     *                       allocation_avg should be supplied.
+     * @param bitmap_avg     If non-null, the first bitmap (which will be recycled when the returned
+     *                       AvgData is destroyed). If null, an allocation_avg should be supplied.
      * @param bitmap_new     The new bitmap to combined. The bitmap will be recycled.
      * @param width          The width of the bitmaps.
      * @param height         The height of the bitmaps.
@@ -1511,6 +1517,9 @@ public class HDRProcessor {
                 Log.d(TAG, "create allocation_avg");
             allocation_orig = Allocation.createFromBitmap(rs, bitmap_avg);
         }
+        if( MyDebug.LOG ) {
+            Log.d(TAG, "allocation_orig: " + allocation_orig);
+        }
         processAvgScript.set_bitmap_orig(allocation_orig);
         processAvgScript.set_bitmap_new(allocation_new);
 
@@ -1580,21 +1589,25 @@ public class HDRProcessor {
         if( MyDebug.LOG )
             Log.d(TAG, "### time after processAvgScript: " + (System.currentTimeMillis() - time_s));
 
-		/*if( allocation_diffs != null ) {
-			allocation_diffs.destroy();
-			allocation_diffs = null;
-		}*/
+        /*if( allocation_diffs != null ) {
+            allocation_diffs.destroy();
+            allocation_diffs = null;
+        }*/
         allocation_new.destroy();
         if( free_allocation_avg ) {
             allocation_avg.destroy();
         }
-        if( bitmap_avg != null ) {
+        // N.B., we don't recycle bitmap_avg (if non-null), as it shares memory with allocation_orig that
+        // we need to use when processing later iterations. Instead the first bitmap is recycled in
+        // AvgData.destroy(). Also note that if we did recycle bitmap_avg, we get a native crash in
+        // process_avg.rs when reading from bitmap_orig, but only on some devices (crash can be
+        // reproduced on Android 11 with Android emulator, e.g., running testTakePhotoNR).
+        /*if( bitmap_avg != null ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "release bitmap_avg");
             bitmap_avg.recycle();
-            //noinspection UnusedAssignment
             bitmap_avg = null;
-        }
+        }*/
         if( bitmap_new != null ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "release bitmap_new");
@@ -1605,7 +1618,7 @@ public class HDRProcessor {
 
         if( MyDebug.LOG )
             Log.d(TAG, "### time for processAvgCore: " + (System.currentTimeMillis() - time_s));
-        return new AvgData(allocation_out, bitmap_avg_align, allocation_avg_align, allocation_orig);
+        return new AvgData(allocation_out, bitmap_avg_align, allocation_avg_align, bitmap_avg, allocation_orig);
     }
 
     /** Combines multiple images by averaging them.
