@@ -4226,6 +4226,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         subTestTakePhoto(false, false, true, true, false, false, true, false);
     }
 
+    /** We no longer run this - superseded by testTakePhotoAutoLevel etc.
+     */
     public void testTakePhotoAutoStabilise() throws InterruptedException {
         Log.d(TAG, "testTakePhotoAutoStabilise");
         setToDefault();

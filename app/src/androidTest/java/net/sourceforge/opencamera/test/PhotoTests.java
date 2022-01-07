@@ -26,9 +26,6 @@ public class PhotoTests {
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhoto"));
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhotoContinuous"));
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhotoContinuousNoTouch"));
-        if( !MainActivityTest.test_camera2 ) {
-            suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhotoAutoStabilise"));
-        }
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhotoFlashAuto"));
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhotoFlashOn"));
         suite.addTest(TestSuite.createTest(MainActivityTest.class, "testTakePhotoFlashTorch"));
