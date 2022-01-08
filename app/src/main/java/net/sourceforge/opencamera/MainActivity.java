@@ -2765,6 +2765,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "scene mode was: " + scene_mode);
             String key = PreferenceKeys.SceneModePreferenceKey;
             String value = sharedPreferences.getString(key, CameraController.SCENE_MODE_DEFAULT);
+            // n.b., on Android 4.3 emulator, scene mode is returned as null (this may be because it doesn't support
+            // scene modes at all) - treat this the same as auto
+            if( scene_mode == null )
+                scene_mode = CameraController.SCENE_MODE_DEFAULT;
             if( !value.equals(scene_mode) ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "scene mode changed to: " + value);
