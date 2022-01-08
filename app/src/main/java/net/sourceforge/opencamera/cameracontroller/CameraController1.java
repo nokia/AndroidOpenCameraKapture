@@ -1386,6 +1386,10 @@ public class CameraController1 extends CameraController {
 
                 setCameraParameters(parameters);
             }
+            else {
+                if( MyDebug.LOG )
+                    Log.d(TAG, "metering areas not supported");
+            }
         }
         catch(RuntimeException e) {
             e.printStackTrace();
@@ -1450,6 +1454,19 @@ public class CameraController1 extends CameraController {
             if( focus_mode != null && ( focus_mode.equals(Camera.Parameters.FOCUS_MODE_AUTO) || focus_mode.equals(Camera.Parameters.FOCUS_MODE_MACRO) ) ) {
                 return true;
             }
+        }
+        catch(RuntimeException e) {
+            e.printStackTrace();
+            count_camera_parameters_exception++;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean supportsMetering() {
+        try {
+            Camera.Parameters parameters = this.getParameters();
+            return parameters.getMaxNumMeteringAreas() > 0;
         }
         catch(RuntimeException e) {
             e.printStackTrace();

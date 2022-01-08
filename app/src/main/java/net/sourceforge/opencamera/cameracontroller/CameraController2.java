@@ -5009,6 +5009,11 @@ public class CameraController2 extends CameraController {
     }
 
     @Override
+    public boolean supportsMetering() {
+        return characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) > 0;
+    }
+
+    @Override
     public boolean focusIsContinuous() {
         if( previewBuilder == null )
             return false;

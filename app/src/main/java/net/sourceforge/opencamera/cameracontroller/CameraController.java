@@ -524,6 +524,7 @@ public abstract class CameraController {
     public abstract List<CameraController.Area> getFocusAreas();
     public abstract List<CameraController.Area> getMeteringAreas();
     public abstract boolean supportsAutoFocus();
+    public abstract boolean supportsMetering();
     public abstract boolean focusIsContinuous();
     public abstract boolean focusIsVideo();
     public abstract void reconnect() throws CameraControllerException;

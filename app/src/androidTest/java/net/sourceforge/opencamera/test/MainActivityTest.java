@@ -3361,9 +3361,14 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         else {
             assertFalse(mPreview.hasFocusArea());
             assertNull(mPreview.getCameraController().getFocusAreas());
-            // we still set metering areas
-            assertNotNull(mPreview.getCameraController().getMeteringAreas());
-            assertEquals(1, mPreview.getCameraController().getMeteringAreas().size());
+            if( mPreview.getCameraController().supportsMetering() ) {
+                // we still set metering areas
+                assertNotNull(mPreview.getCameraController().getMeteringAreas());
+                assertEquals(1, mPreview.getCameraController().getMeteringAreas().size());
+            }
+            else {
+                assertNull(mPreview.getCameraController().getMeteringAreas());
+            }
         }
         String new_focus_value_ui = mPreview.getCurrentFocusValue();
         //noinspection StringEquality
@@ -3439,9 +3444,15 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             else {
                 assertFalse(mPreview.hasFocusArea());
                 assertNull(mPreview.getCameraController().getFocusAreas());
-                // we still set metering areas
-                assertNotNull(mPreview.getCameraController().getMeteringAreas());
-                assertEquals(1, mPreview.getCameraController().getMeteringAreas().size());
+
+                if( mPreview.getCameraController().supportsMetering() ) {
+                    // we still set metering areas
+                    assertNotNull(mPreview.getCameraController().getMeteringAreas());
+                    assertEquals(1, mPreview.getCameraController().getMeteringAreas().size());
+                }
+                else {
+                    assertNull(mPreview.getCameraController().getMeteringAreas());
+                }
             }
         }
         else {
