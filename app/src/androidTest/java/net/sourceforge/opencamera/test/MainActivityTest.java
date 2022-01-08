@@ -8437,7 +8437,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
                 });
                 // need to wait for UI code to finish before leaving
                 this.getInstrumentation().waitForIdleSync();
-                Thread.sleep(500);
+                Thread.sleep(1000); // need at least 1000ms for Nexus 7
             }
             else {
                 View popupButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.popup);
