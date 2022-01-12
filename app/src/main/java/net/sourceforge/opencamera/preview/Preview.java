@@ -50,12 +50,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
-import android.graphics.Typeface;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.location.Location;
@@ -82,6 +80,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.GestureDetector;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.ScaleGestureDetector;
@@ -94,6 +94,7 @@ import android.view.ViewParent;
 import android.view.WindowManager;
 import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /** This class was originally named due to encapsulating the camera preview,
@@ -7392,117 +7393,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
             Log.d(TAG, "onSaveInstanceState");
     }
 
-    private class RotatedTextView extends View {
-        private String [] lines;
-        private int offset_y;
-        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final Rect bounds = new Rect();
-        private final Rect sub_bounds = new Rect();
-        private final RectF rect = new RectF();
-        private final boolean style_outline; // if true, display text with outline rather than background
-
-        RotatedTextView(String text, int offset_y, boolean style_outline, Context context) {
-            super(context);
-
-            this.lines = text.split("\n");
-            this.offset_y = offset_y;
-            this.style_outline = style_outline;
-
-            if( style_outline ) {
-                // outline style looks clearer when using bold text
-                this.paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-            }
-        }
-
-        void setText(String text) {
-            this.lines = text.split("\n");
-        }
-
-        void setOffsetY(int offset_y) {
-            this.offset_y = offset_y;
-        }
-
-        @SuppressLint("CanvasSize")
-        @Override
-        protected void onDraw(Canvas canvas) {
-            final float scale = Preview.this.getResources().getDisplayMetrics().density;
-            paint.setTextSize(14 * scale + 0.5f); // convert dps to pixels
-            if( !style_outline ) {
-                paint.setShadowLayer(1, 0, 1, Color.BLACK);
-            }
-            //paint.getTextBounds(text, 0, text.length(), bounds);
-            boolean first_line = true;
-            for(String line : lines) {
-                paint.getTextBounds(line, 0, line.length(), sub_bounds);
-					/*if( MyDebug.LOG ) {
-						Log.d(TAG, "line: " + line + " sub_bounds: " + sub_bounds);
-					}*/
-                if( first_line ) {
-                    bounds.set(sub_bounds);
-                    first_line = false;
-                }
-                else {
-                    bounds.top = Math.min(sub_bounds.top, bounds.top);
-                    bounds.bottom = Math.max(sub_bounds.bottom, bounds.bottom);
-                    bounds.left = Math.min(sub_bounds.left, bounds.left);
-                    bounds.right = Math.max(sub_bounds.right, bounds.right);
-                }
-            }
-            // above we've worked out the maximum bounds of each line - this is useful for left/right, but for the top/bottom
-            // we would rather use a consistent height no matter what the text is (otherwise we have the problem of varying
-            // gap between lines, depending on what the characters are).
-            final String reference_text = "Ap";
-            paint.getTextBounds(reference_text, 0, reference_text.length(), sub_bounds);
-            bounds.top = sub_bounds.top;
-            bounds.bottom = sub_bounds.bottom;
-				/*if( MyDebug.LOG ) {
-					Log.d(TAG, "bounds: " + bounds);
-				}*/
-            int height = bounds.bottom - bounds.top; // height of each line
-            bounds.bottom += ((lines.length-1) * height)/2;
-            bounds.top -= ((lines.length-1) * height)/2;
-            final int padding = (int) (14 * scale + 0.5f); // padding for the shaded rectangle; convert dps to pixels
-            canvas.save();
-            canvas.rotate(ui_rotation, canvas.getWidth()/2.0f, canvas.getHeight()/2.0f);
-
-            rect.left = canvas.getWidth()/2.0f - bounds.width()/2.0f + bounds.left - padding;
-            rect.top = canvas.getHeight()/2.0f + bounds.top - padding + offset_y;
-            rect.right = canvas.getWidth()/2.0f - bounds.width()/2.0f + bounds.right + padding;
-            rect.bottom = canvas.getHeight()/2.0f + bounds.bottom + padding + offset_y;
-
-            paint.setStyle(Paint.Style.FILL);
-            if( !style_outline ) {
-                paint.setColor(Color.rgb(50, 50, 50));
-                //paint.setColor(Color.argb(32, 0, 0, 0));
-                //canvas.drawRect(rect, paint);
-                final float radius = (24 * scale + 0.5f); // convert dps to pixels
-                canvas.drawRoundRect(rect, radius, radius, paint);
-            }
-
-            paint.setColor(Color.WHITE);
-            int ypos = canvas.getHeight()/2 + offset_y - ((lines.length-1) * height)/2;
-            for(String line : lines) {
-                canvas.drawText(line, canvas.getWidth()/2.0f - bounds.width()/2.0f, ypos, paint);
-
-                if( style_outline ) {
-                    // draw outline
-                    int current_color = paint.getColor();
-                    paint.setColor(Color.BLACK);
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setStrokeWidth(1);
-                    canvas.drawText(line, canvas.getWidth()/2.0f - bounds.width()/2.0f, ypos, paint);
-                    paint.setStyle(Paint.Style.FILL);
-                    paint.setColor(current_color);
-                }
-
-                ypos += height;
-            }
-            canvas.restore();
-        }
-    }
-
     private final Handler fake_toast_handler = new Handler();
-    private RotatedTextView active_fake_toast = null;
+    private TextView active_fake_toast = null;
 
     public void clearActiveFakeToast() {
         clearActiveFakeToast(false);
@@ -7603,6 +7495,10 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
                 final float scale = Preview.this.getResources().getDisplayMetrics().density;
                 final int offset_y = (int) (offset_y_dp * scale + 0.5f); // convert dps to pixels
+                float shadow_radius = (2.0f * scale + 0.5f); // convert pt to pixels
+                shadow_radius = Math.max(shadow_radius, 1.0f);
+                if( MyDebug.LOG )
+                    Log.d(TAG, "shadow_radius: " + shadow_radius);
 
                 if( use_fake_toast ) {
                     if( active_fake_toast != null ) {
@@ -7610,14 +7506,19 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                         if( MyDebug.LOG )
                             Log.d(TAG, "re-use fake toast: " + active_fake_toast);
                         active_fake_toast.setText(message);
-                        active_fake_toast.setOffsetY(offset_y);
+                        active_fake_toast.setPadding(0, offset_y, 0, 0);
                         active_fake_toast.invalidate(); // make sure the view is redrawn
                     }
                     else {
-                        active_fake_toast = new RotatedTextView(message, offset_y, true, activity);
+                        Activity activity = (Activity) Preview.this.getContext();
+                        @SuppressLint("InflateParams") // we add the view a few lines below
+                        final View view = LayoutInflater.from(activity).inflate(R.layout.toast_textview, null);
+                        active_fake_toast = view.findViewById(R.id.text_view);
+                        active_fake_toast.setShadowLayer(shadow_radius, 0.0f, 0.0f, Color.BLACK);
+                        active_fake_toast.setPadding(0, offset_y, 0, 0);
+                        active_fake_toast.setText(message);
                         if( MyDebug.LOG )
                             Log.d(TAG, "create new fake toast: " + active_fake_toast);
-                        Activity activity = (Activity) Preview.this.getContext();
                         final FrameLayout rootLayout = activity.findViewById(android.R.id.content);
                         rootLayout.addView(active_fake_toast);
                     }
@@ -7662,9 +7563,9 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                         Log.d(TAG, "reuse last toast: " + last_toast);
                     toast = clear_toast.toast;
                     // for performance, important to reuse the same view, instead of creating a new one (otherwise we get jerky preview update e.g. for changing manual focus slider)
-                    RotatedTextView view = (RotatedTextView)toast.getView();
+                    TextView view = (TextView)toast.getView();
                     view.setText(message);
-                    view.setOffsetY(offset_y);
+                    view.setPadding(0, offset_y, 0, 0);
                     view.invalidate(); // make sure the toast is redrawn
                     toast.setView(view);
                 }
@@ -7679,8 +7580,14 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
                         Log.d(TAG, "created new toast: " + toast);
                     if( clear_toast != null )
                         clear_toast.toast = toast;
-                    View text = new RotatedTextView(message, offset_y, false, activity);
+                    @SuppressLint("InflateParams") // we add the view to the toast
+                    final View view = LayoutInflater.from(activity).inflate(R.layout.toast_textview, null);
+                    TextView text = view.findViewById(R.id.text_view);
+                    text.setShadowLayer(shadow_radius, 0.0f, 0.0f, Color.BLACK);
+                    text.setText(message);
+                    view.setPadding(0, offset_y, 0, 0);
                     toast.setView(text);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
                     last_toast_time_ms = time_now;
                 }
                 toast.setDuration(Toast.LENGTH_SHORT);
