@@ -40,6 +40,7 @@ import androidx.core.content.ContextCompat;
 import android.system.Os;
 import android.system.StructStatVfs;
 import android.util.Log;
+import android.widget.Toast;
 
 /** Provides access to the filesystem. Supports both standard and Storage
  *  Access Framework.
@@ -337,6 +338,16 @@ public class StorageUtils {
     // only valid if isUsingSAF()
     String getSaveLocationSAF() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        if (!sharedPreferences.contains(PreferenceKeys.SaveLocationSAFPreferenceKey)) {
+            MainActivity main_activity = (MainActivity)context;
+            main_activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(main_activity, R.string.saf_select_save_location, Toast.LENGTH_LONG).show();
+                }
+            });
+            main_activity.openFolderChooserDialogSAF(false);
+        }
         return sharedPreferences.getString(PreferenceKeys.SaveLocationSAFPreferenceKey, "");
     }
 
