@@ -4609,7 +4609,8 @@ public class MainActivity extends AppCompatActivity {
         if( MyDebug.LOG )
             Log.d(TAG, "takePicture");
 
-        if( applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama ) {
+        if( applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama ||
+                applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Kapture ) {
             if( preview.isTakingPhoto() ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "ignore whilst taking panorama photo");
@@ -5178,6 +5179,8 @@ public class MainActivity extends AppCompatActivity {
             return false; // if not saving JPEGs, no point having auto-stabilise mode, as it won't affect the RAW images
         if( applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama )
             return false; // not supported in panorama mode
+        if( applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Kapture )
+            return false; // not supported in kapture mode
         return this.supports_auto_stabilise;
     }
 
@@ -5216,6 +5219,10 @@ public class MainActivity extends AppCompatActivity {
         // remember to update the FAQ "Why isn't Panorama supported on my device?" if this changes
         return( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && large_heap_memory >= 256 && applicationInterface.getGyroSensor().hasSensors() );
         //return false; // currently blocked for release
+    }
+
+    public boolean supportsKapture() {
+        return supportsPanorama();
     }
 
     public boolean supportsFastBurst() {
@@ -5576,7 +5583,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         String lock_orientation = applicationInterface.getLockOrientationPref();
-        if( !lock_orientation.equals("none") && photo_mode != MyApplicationInterface.PhotoMode.Panorama ) {
+        if( !lock_orientation.equals("none") && photo_mode != MyApplicationInterface.PhotoMode.Panorama && photo_mode != MyApplicationInterface.PhotoMode.Kapture ) {
             // panorama locks to portrait, but don't want to display that in the toast
             String [] entries_array = getResources().getStringArray(R.array.preference_lock_orientation_entries);
             String [] values_array = getResources().getStringArray(R.array.preference_lock_orientation_values);
@@ -5588,7 +5595,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         String timer = sharedPreferences.getString(PreferenceKeys.TimerPreferenceKey, "0");
-        if( !timer.equals("0") && photo_mode != MyApplicationInterface.PhotoMode.Panorama ) {
+        if( !timer.equals("0") && photo_mode != MyApplicationInterface.PhotoMode.Panorama && photo_mode != MyApplicationInterface.PhotoMode.Kapture) {
             String [] entries_array = getResources().getStringArray(R.array.preference_timer_entries);
             String [] values_array = getResources().getStringArray(R.array.preference_timer_values);
             int index = Arrays.asList(values_array).indexOf(timer);
@@ -5750,7 +5757,8 @@ public class MainActivity extends AppCompatActivity {
     private void initGyroSensors() {
         if( MyDebug.LOG )
             Log.d(TAG, "initGyroSensors");
-        if( applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama ) {
+        if( applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama ||
+                applicationInterface.getPhotoMode() == MyApplicationInterface.PhotoMode.Kapture) {
             applicationInterface.getGyroSensor().enableSensors();
         }
         else {

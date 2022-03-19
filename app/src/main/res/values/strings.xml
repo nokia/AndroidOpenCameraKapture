@@ -787,6 +787,8 @@
     <string name="photo_mode_panorama">Pano</string> <!-- keep short, as this shows in the popup menu; probably shouldn't be translated? -->
     <string name="photo_mode_panorama_full">Panorama</string>
 
+    <string name="photo_mode_kapture">Kapture</string>
+
     <string name="preference_screen_remote_control">Bluetooth LE remote control…</string>
     <string name="preference_enable_remote">Enable Bluetooth LE remote control</string>
     <string name="preference_enable_remote_summary">Enable Bluetooth LE (BLE) remote control devices</string>
@@ -880,7 +882,7 @@
     <string name="preference_panorama_crop_summary">For panorama mode, whether to remove the wavy boundaries\n%s</string>
 
     <string name="panorama_info">To take a panorama image, hold your device in portrait orientation, and click to take a photo to start the panorama. Then rotate your device either left or right to move the centred white circle over the blue dot. After each new image is captured, keep rotating your device to cover each new blue dot that appears in turn.\n\nClick the tick icon to save the panorama, or the cross icon to cancel.\n\nNote that panorama photos can take time to process and save.</string>
-
+    <string name="kapture_info">TODO(soeroesg): KAPTURE INFO COMES HERE... To take a panorama image, hold your device in portrait orientation, and click to take a photo to start the panorama. Then rotate your device either left or right to move the centred white circle over the blue dot. After each new image is captured, keep rotating your device to cover each new blue dot that appears in turn.\n\nClick the tick icon to save the panorama, or the cross icon to cancel.\n\nNote that panorama photos can take time to process and save.</string>
     <string name="preference_panorama_save">Panorama original images</string>
     <string name="preference_panorama_save_summary">Whether to save original images in panorama mode. Note this will make saving panorama photos slower. Also allows the option to save an XML file which can be useful reporting problems with panorama.\n%s</string>
 

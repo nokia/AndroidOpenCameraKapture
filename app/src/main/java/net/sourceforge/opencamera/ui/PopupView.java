@@ -183,8 +183,8 @@ public class PopupView extends LinearLayout {
 
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
 
-            //final boolean use_expanded_menu = true;
-            final boolean use_expanded_menu = false;
+            final boolean use_expanded_menu = true;
+            //final boolean use_expanded_menu = false;
             final List<String> photo_modes = new ArrayList<>();
             final List<MyApplicationInterface.PhotoMode> photo_mode_values = new ArrayList<>();
             photo_modes.add( getResources().getString(use_expanded_menu ? R.string.photo_mode_standard_full : R.string.photo_mode_standard) );
@@ -204,6 +204,10 @@ public class PopupView extends LinearLayout {
             if( main_activity.supportsPanorama() ) {
                 photo_modes.add(getResources().getString(use_expanded_menu ? R.string.photo_mode_panorama_full : R.string.photo_mode_panorama));
                 photo_mode_values.add(MyApplicationInterface.PhotoMode.Panorama);
+            }
+            if( main_activity.supportsKapture() ) {
+                photo_modes.add(getResources().getString(R.string.photo_mode_kapture));
+                photo_mode_values.add(MyApplicationInterface.PhotoMode.Kapture);
             }
             if( main_activity.supportsFastBurst() ) {
                 photo_modes.add(getResources().getString(use_expanded_menu ? R.string.photo_mode_fast_burst_full : R.string.photo_mode_fast_burst));
@@ -352,7 +356,7 @@ public class PopupView extends LinearLayout {
             if( MyDebug.LOG )
                 Log.d(TAG, "PopupView time 8: " + (System.nanoTime() - debug_time));
 
-            if( !preview.isVideo() && photo_mode != MyApplicationInterface.PhotoMode.Panorama ) {
+            if( !preview.isVideo() && photo_mode != MyApplicationInterface.PhotoMode.Panorama && photo_mode != MyApplicationInterface.PhotoMode.Kapture ) {
                 // Only show photo resolutions in photo mode - even if photo snapshots whilst recording video is supported, the
                 // resolutions for that won't match what the user has requested for photo mode resolutions.
                 // And Panorama mode chooses its own resolution.
@@ -848,7 +852,7 @@ public class PopupView extends LinearLayout {
                 }
             }
 
-            if( photo_mode != MyApplicationInterface.PhotoMode.Panorama ) {
+            if( photo_mode != MyApplicationInterface.PhotoMode.Panorama && photo_mode != MyApplicationInterface.PhotoMode.Kapture) {
                 // timer not supported with panorama
 
                 final String [] timer_values = getResources().getStringArray(R.array.preference_timer_values);
@@ -894,7 +898,7 @@ public class PopupView extends LinearLayout {
             if( MyDebug.LOG )
                 Log.d(TAG, "PopupView time 11: " + (System.nanoTime() - debug_time));
 
-            if( photo_mode != MyApplicationInterface.PhotoMode.Panorama ) {
+            if( photo_mode != MyApplicationInterface.PhotoMode.Panorama && photo_mode != MyApplicationInterface.PhotoMode.Kapture ) {
                 // auto-repeat not supported with panorama
 
                 final String [] repeat_mode_values = getResources().getStringArray(R.array.preference_burst_mode_values);
@@ -1106,6 +1110,9 @@ public class PopupView extends LinearLayout {
                 case Panorama:
                     toast_message = getResources().getString(R.string.photo_mode_panorama_full);
                     break;
+                case Kapture:
+                    toast_message = getResources().getString(R.string.photo_mode_kapture);
+                    break;
             }
             final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -1134,6 +1141,9 @@ public class PopupView extends LinearLayout {
                 case Panorama:
                     editor.putString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_panorama");
                     break;
+                case Kapture:
+                    editor.putString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_kapture");
+                    break;
                 default:
                     if (MyDebug.LOG)
                         Log.e(TAG, "unknown new_photo_mode: " + new_photo_mode);
@@ -1153,6 +1163,13 @@ public class PopupView extends LinearLayout {
                 boolean done_panorama_info = sharedPreferences.contains(PreferenceKeys.PanoramaInfoPreferenceKey);
                 if( !done_panorama_info ) {
                     main_activity.getMainUI().showInfoDialog(R.string.photo_mode_panorama_full, R.string.panorama_info, PreferenceKeys.PanoramaInfoPreferenceKey);
+                    done_dialog = true;
+                }
+            }
+            else if( new_photo_mode == MyApplicationInterface.PhotoMode.Kapture ) {
+                boolean done_kapture_info = sharedPreferences.contains(PreferenceKeys.KaptureInfoPreferenceKey);
+                if( !done_kapture_info ) {
+                    main_activity.getMainUI().showInfoDialog(R.string.photo_mode_kapture, R.string.kapture_info, PreferenceKeys.KaptureInfoPreferenceKey);
                     done_dialog = true;
                 }
             }

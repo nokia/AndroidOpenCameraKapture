@@ -163,6 +163,7 @@ public class DrawPreview {
     private Bitmap dro_bitmap;
     private Bitmap hdr_bitmap;
     private Bitmap panorama_bitmap;
+    private Bitmap kapture_bitmap;
     private Bitmap expo_bitmap;
     //private Bitmap focus_bracket_bitmap;
         // no longer bother with a focus bracketing icon - hard to come up with a clear icon, and should be obvious from the two on-screen seekbars
@@ -258,6 +259,7 @@ public class DrawPreview {
         dro_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.dro_icon);
         hdr_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ic_hdr_on_white_48dp);
         panorama_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.baseline_panorama_horizontal_white_48);
+        kapture_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.kapture_96);
         expo_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.expo_icon);
         //focus_bracket_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.focus_bracket_icon);
         burst_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ic_burst_mode_white_48dp);
@@ -310,6 +312,10 @@ public class DrawPreview {
         if( panorama_bitmap != null ) {
             panorama_bitmap.recycle();
             panorama_bitmap = null;
+        }
+        if( kapture_bitmap != null ) {
+            kapture_bitmap.recycle();
+            kapture_bitmap = null;
         }
         if( expo_bitmap != null ) {
             expo_bitmap.recycle();
@@ -1368,6 +1374,7 @@ public class DrawPreview {
                     photoMode == MyApplicationInterface.PhotoMode.DRO ||
                             photoMode == MyApplicationInterface.PhotoMode.HDR ||
                             photoMode == MyApplicationInterface.PhotoMode.Panorama ||
+                            photoMode == MyApplicationInterface.PhotoMode.Kapture ||
                             photoMode == MyApplicationInterface.PhotoMode.ExpoBracketing ||
                             //photoMode == MyApplicationInterface.PhotoMode.FocusBracketing ||
                             photoMode == MyApplicationInterface.PhotoMode.FastBurst ||
@@ -1387,7 +1394,8 @@ public class DrawPreview {
                                             //photoMode == MyApplicationInterface.PhotoMode.FocusBracketing ? focus_bracket_bitmap :
                                                     photoMode == MyApplicationInterface.PhotoMode.FastBurst ? burst_bitmap :
                                                             photoMode == MyApplicationInterface.PhotoMode.NoiseReduction ? nr_bitmap :
-                                                                    null;
+                                                                    photoMode == MyApplicationInterface.PhotoMode.Kapture ? kapture_bitmap :
+                                                                        null;
                 if( bitmap != null ) {
                     if( photoMode == MyApplicationInterface.PhotoMode.NoiseReduction && applicationInterface.getNRModePref() == ApplicationInterface.NRModePref.NRMODE_LOW_LIGHT ) {
                         p.setColorFilter(new PorterDuffColorFilter(Color.rgb(255, 235, 59), PorterDuff.Mode.SRC_IN)); // Yellow 500
@@ -2183,7 +2191,7 @@ public class DrawPreview {
         boolean system_orientation_portrait = system_orientation == MainActivity.SystemOrientation.PORTRAIT;
         boolean has_level_angle = preview.hasLevelAngle();
         boolean actual_show_angle_line_pref;
-        if( photoMode == MyApplicationInterface.PhotoMode.Panorama ) {
+        if( photoMode == MyApplicationInterface.PhotoMode.Panorama || photoMode == MyApplicationInterface.PhotoMode.Kapture ) {
             // in panorama mode, we should the level iff we aren't taking the panorama photos
             actual_show_angle_line_pref = !main_activity.getApplicationInterface().getGyroSensor().isRecording();
         }

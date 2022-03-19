@@ -69,7 +69,8 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         FocusBracketing, // take multiple focus bracketed images, without combining to a single image
         FastBurst,
         NoiseReduction,
-        Panorama
+        Panorama,
+        Kapture
     }
 
     private final MainActivity main_activity;
@@ -538,7 +539,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
     @Override
     public Pair<Integer, Integer> getCameraResolutionPref(CameraResolutionConstraints constraints) {
         PhotoMode photo_mode = getPhotoMode();
-        if( photo_mode == PhotoMode.Panorama ) {
+        if( photo_mode == PhotoMode.Panorama || photo_mode == PhotoMode.Kapture ) {
             CameraController.Size best_size = choosePanoramaResolution(main_activity.getPreview().getSupportedPictureSizes(false));
             return new Pair<>(best_size.width, best_size.height);
         }
@@ -1093,7 +1094,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     @Override
     public String getLockOrientationPref() {
-        if( getPhotoMode() == PhotoMode.Panorama )
+        if( getPhotoMode() == PhotoMode.Panorama || getPhotoMode() == PhotoMode.Kapture )
             return "portrait"; // for now panorama only supports portrait
         return sharedPreferences.getString(PreferenceKeys.LockOrientationPreferenceKey, "none");
     }
@@ -1123,7 +1124,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             // pause preview in this mode.
             return false;
         }
-        else if( getPhotoMode() == PhotoMode.Panorama ) {
+        else if( getPhotoMode() == PhotoMode.Panorama || getPhotoMode() == PhotoMode.Kapture ) {
             // don't pause preview when taking photos for panorama mode
             return false;
         }
@@ -1141,7 +1142,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     @Override
     public boolean getShutterSoundPref() {
-        if( getPhotoMode() == PhotoMode.Panorama )
+        if( getPhotoMode() == PhotoMode.Panorama || getPhotoMode() == PhotoMode.Kapture )
             return false;
         return sharedPreferences.getBoolean(PreferenceKeys.ShutterSoundPreferenceKey, true);
     }
@@ -1153,7 +1154,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     @Override
     public long getTimerPref() {
-        if( getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama )
+        if( getPhotoMode() == PhotoMode.Panorama || getPhotoMode() == PhotoMode.Kapture )
             return 0; // don't support timer with panorama
         String timer_value = sharedPreferences.getString(PreferenceKeys.TimerPreferenceKey, "0");
         long timer_delay;
@@ -1171,7 +1172,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     @Override
     public String getRepeatPref() {
-        if( getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama )
+        if( getPhotoMode() == PhotoMode.Panorama || getPhotoMode() == PhotoMode.Kapture )
             return "1"; // don't support repeat with panorama
         return sharedPreferences.getString(PreferenceKeys.RepeatModePreferenceKey, "1");
     }
@@ -1377,7 +1378,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         // even if the queue isn't full, we may apply additional limits
         int n_images_to_save = imageSaver.getNImagesToSave();
         PhotoMode photo_mode = getPhotoMode();
-        if( photo_mode == PhotoMode.FastBurst || photo_mode == PhotoMode.Panorama ) {
+        if( photo_mode == PhotoMode.FastBurst || photo_mode == PhotoMode.Panorama || getPhotoMode() == PhotoMode.Kapture ) {
             // only allow one fast burst at a time, so require queue to be empty
             if( n_images_to_save > 0 ) {
                 if( MyDebug.LOG )
@@ -1627,9 +1628,9 @@ public class MyApplicationInterface extends BasicApplicationInterface {
      *  the CameraController is set up, and we don't always re-setup the camera when switching between photo and video modes.
      */
     public PhotoMode getPhotoMode() {
-        String photo_mode_pref = sharedPreferences.getString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_std");
-		/*if( MyDebug.LOG )
-			Log.d(TAG, "photo_mode_pref: " + photo_mode_pref);*/
+        String photo_mode_pref = sharedPreferences.getString(PreferenceKeys.PhotoModePreferenceKey, "preference_photo_mode_kapture");
+		//if( MyDebug.LOG )
+		//	Log.d(TAG, "photo_mode_pref: " + photo_mode_pref);
         boolean dro = photo_mode_pref.equals("preference_photo_mode_dro");
         if( dro && main_activity.supportsDRO() )
             return PhotoMode.DRO;
@@ -1651,6 +1652,9 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         boolean panorama = photo_mode_pref.equals("preference_photo_mode_panorama");
         if( panorama && !main_activity.getPreview().isVideo() && main_activity.supportsPanorama() )
             return PhotoMode.Panorama;
+        boolean kapture = photo_mode_pref.equals("preference_photo_mode_kapture");
+        if( kapture && !main_activity.getPreview().isVideo() && main_activity.supportsKapture() )
+            return PhotoMode.Kapture;
         return PhotoMode.Standard;
     }
 
@@ -1771,7 +1775,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     @Override
     public boolean allowZoom() {
-        if( getPhotoMode() == PhotoMode.Panorama ) {
+        if( getPhotoMode() == PhotoMode.Panorama || getPhotoMode() == PhotoMode.Kapture) {
             // don't allow zooming in panorama mode, the algorithm isn't set up to support this!
             return false;
         }
@@ -2692,7 +2696,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             boolean do_in_background = saveInBackground(image_capture_intent);
             imageSaver.finishImageBatch(do_in_background);
         }
-        else if( photo_mode == MyApplicationInterface.PhotoMode.Panorama && gyroSensor.isRecording() ) {
+        else if( (photo_mode == PhotoMode.Panorama || getPhotoMode() == PhotoMode.Kapture) && gyroSensor.isRecording() ) {
             if( panorama_pic_accepted ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "set next panorama point");
@@ -2907,7 +2911,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
 
     @Override
     public void setCameraResolutionPref(int width, int height) {
-        if( getPhotoMode() == PhotoMode.Panorama ) {
+        if( getPhotoMode() == PhotoMode.Panorama || getPhotoMode() == PhotoMode.Kapture ) {
             // in Panorama mode we'll have set a different resolution to the user setting, so don't want that to then be saved!
             return;
         }
@@ -3269,21 +3273,23 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             photo_mode = PhotoMode.Standard;
         }
 
-        if( !main_activity.is_test && photo_mode == PhotoMode.Panorama && gyroSensor.isRecording() && gyroSensor.hasTarget() && !gyroSensor.isTargetAchieved() ) {
+        if( !main_activity.is_test && (photo_mode == PhotoMode.Panorama || photo_mode == PhotoMode.Kapture) && gyroSensor.isRecording() && gyroSensor.hasTarget() && !gyroSensor.isTargetAchieved() ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "ignore panorama image as target no longer achieved!");
             // n.b., gyroSensor.hasTarget() will be false if this is the first picture in the panorama series
             panorama_pic_accepted = false;
             success = true; // still treat as success
         }
-        else if( photo_mode == PhotoMode.NoiseReduction || photo_mode == PhotoMode.Panorama ) {
+        else if( photo_mode == PhotoMode.NoiseReduction || photo_mode == PhotoMode.Panorama || photo_mode == PhotoMode.Kapture) {
             boolean first_image;
-            if( photo_mode == PhotoMode.Panorama ) {
+            if( photo_mode == PhotoMode.Panorama || photo_mode == PhotoMode.Kapture) {
                 panorama_pic_accepted = true;
                 first_image = n_panorama_pics == 0;
             }
-            else
+            else {
                 first_image = n_capture_images == 1;
+            }
+
             if( first_image ) {
                 ImageSaver.Request.SaveBase save_base = ImageSaver.Request.SaveBase.SAVEBASE_NONE;
                 if( photo_mode == PhotoMode.NoiseReduction ) {
@@ -3308,14 +3314,34 @@ public class MyApplicationInterface extends BasicApplicationInterface {
                             break;
                     }
                 }
+                else if( photo_mode == PhotoMode.Kapture ) {
+                    save_base = ImageSaver.Request.SaveBase.SAVEBASE_ALL_PLUS_DEBUG;
+                }
 
+                ImageSaver.Request.ProcessType process_type = ImageSaver.Request.ProcessType.NORMAL;
+                switch (photo_mode) {
+                    case NoiseReduction:
+                        process_type = ImageSaver.Request.ProcessType.AVERAGE;
+                        break;
+                    case Panorama:
+                        process_type = ImageSaver.Request.ProcessType.PANORAMA;
+                        break;
+                    case Kapture:
+                        process_type = ImageSaver.Request.ProcessType.KAPTURE;
+                        break;
+                    default:
+                        Log.e(TAG, "Unexpected PhotoMode received!");
+                        break;
+                }
+
+                boolean want_gyro_matrices = (photo_mode == PhotoMode.Panorama || photo_mode == PhotoMode.Kapture);
                 imageSaver.startImageBatch(true,
-                        photo_mode == PhotoMode.NoiseReduction ? ImageSaver.Request.ProcessType.AVERAGE : ImageSaver.Request.ProcessType.PANORAMA,
+                        process_type,
                         save_base,
                         image_capture_intent, image_capture_intent_uri,
                         using_camera2,
                         image_format, image_quality,
-                        do_auto_stabilise, level_angle, photo_mode == PhotoMode.Panorama,
+                        do_auto_stabilise, level_angle, want_gyro_matrices,
                         is_front_facing,
                         mirror,
                         current_date,
@@ -3329,14 +3355,14 @@ public class MyApplicationInterface extends BasicApplicationInterface {
                         custom_tag_artist, custom_tag_copyright,
                         sample_factor);
 
-                if( photo_mode == PhotoMode.Panorama ) {
+                if( photo_mode == PhotoMode.Panorama || photo_mode == PhotoMode.Kapture) {
                     imageSaver.getImageBatchRequest().camera_view_angle_x = main_activity.getPreview().getViewAngleX(false);
                     imageSaver.getImageBatchRequest().camera_view_angle_y = main_activity.getPreview().getViewAngleY(false);
                 }
             }
 
             float [] gyro_rotation_matrix = null;
-            if( photo_mode == PhotoMode.Panorama ) {
+            if( photo_mode == PhotoMode.Panorama || photo_mode == PhotoMode.Kapture) {
                 gyro_rotation_matrix = new float[9];
                 this.gyroSensor.getRotationMatrix(gyro_rotation_matrix);
             }

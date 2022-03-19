@@ -1028,7 +1028,8 @@ public class MainUI {
                 content_description = main_activity.getPreview().isVideoRecording() ? R.string.stop_video : R.string.start_video;
                 switch_video_content_description = R.string.switch_to_photo;
             }
-            else if( main_activity.getApplicationInterface().getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama &&
+            else if( (main_activity.getApplicationInterface().getPhotoMode() == MyApplicationInterface.PhotoMode.Panorama ||
+                    main_activity.getApplicationInterface().getPhotoMode() == MyApplicationInterface.PhotoMode.Kapture ) &&
                     main_activity.getApplicationInterface().getGyroSensor().isRecording() ) {
                 if( MyDebug.LOG )
                     Log.d(TAG, "set icon to recording panorama");

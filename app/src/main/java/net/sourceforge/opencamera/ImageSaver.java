@@ -110,7 +110,8 @@ public class ImageSaver extends Thread {
             NORMAL,
             HDR,
             AVERAGE,
-            PANORAMA
+            PANORAMA,
+            KAPTURE
         }
         final ProcessType process_type; // for type==JPEG
         final boolean force_suffix; // affects filename suffixes for saving jpeg_images: if true, filenames will always be appended with a suffix like _0, even if there's only 1 image in jpeg_images
@@ -1767,6 +1768,10 @@ public class ImageSaver extends Thread {
             panorama.recycle();
             System.gc();
         }
+        else if( request.process_type == Request.ProcessType.KAPTURE ) {
+            if( MyDebug.LOG )
+                Log.e(TAG, "kapture");
+        }
         else {
             // see note above how we used to use "_EXP" for the suffix for multiple images
             //String suffix = "_EXP";
@@ -1822,11 +1827,22 @@ public class ImageSaver extends Thread {
                 // same issue - decompressing JPEGs can vary between devices!
                 // Also disable options that don't really make sense for base panorama images.
                 base_request = request.copy();
-                base_request.image_format = Request.ImageFormat.PNG;
+                base_request.image_format = Request.ImageFormat.STD;  // TODO(soeroesg): changed from PNG to STD (JPEG)
                 base_request.preference_stamp = "preference_stamp_no";
                 base_request.preference_textstamp = "";
                 base_request.do_auto_stabilise = false;
                 base_request.mirror = false;
+            }
+            else if( request.process_type == Request.ProcessType.KAPTURE ) {
+                base_request = request.copy();
+                base_request.image_format = Request.ImageFormat.STD;
+                base_request.preference_stamp = "preference_stamp_no";
+                base_request.preference_textstamp = "";
+                base_request.do_auto_stabilise = false;
+                base_request.mirror = false;
+                //base_request.store_location = true; // TODO(soeroesg): read-only properties :(
+                //base_request.store_geo_direction = true;
+                //base_request.store_ypr = true;
             }
             else if( request.process_type == Request.ProcessType.AVERAGE ) {
                 // In case the base image needs to be postprocessed, we still want to save base images for NR at the 100% JPEG quality

@@ -29,6 +29,10 @@ public class PreferenceKeys {
      */
     public static final String PanoramaInfoPreferenceKey = "done_panorama_info";
 
+    /** If this preference is set, no longer show the Kapture info dialog.
+     */
+    public static final String KaptureInfoPreferenceKey = "done_kapture_info";
+
     /** If this preference is set, no longer show the raw info dialog.
      */
     public static final String RawInfoPreferenceKey = "done_raw_info";
