@@ -132,7 +132,7 @@ public interface ApplicationInterface {
     String getRepeatPref(); // return number of times to repeat photo in a row (as a string), so "1" for default; return "unlimited" for unlimited
     long getRepeatIntervalPref(); // time in ms between repeat
     boolean getGeotaggingPref(); // whether to geotag photos
-    boolean getRequireLocationPref(); // if getGeotaggingPref() returns true, and this method returns true, then phot/video will only be taken if location data is available
+    boolean getRequireLocationPref(); // if getGeotaggingPref() returns true, and this method returns true, then photo/video will only be taken if location data is available
     boolean getRecordAudioPref(); // whether to record audio when recording video
     String getRecordAudioChannelsPref(); // either "audio_default", "audio_mono" or "audio_stereo"
     String getRecordAudioSourcePref(); // "audio_src_camcorder" is recommended, but other options are: "audio_src_mic", "audio_src_default", "audio_src_voice_communication", "audio_src_unprocessed" (unprocessed required Android 7+); see corresponding values in android.media.MediaRecorder.AudioSource
