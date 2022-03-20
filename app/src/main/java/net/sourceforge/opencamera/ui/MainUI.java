@@ -1349,10 +1349,10 @@ public class MainUI {
     }
 
     public void showGUI(final boolean show, final boolean is_video) {
-        if( MyDebug.LOG ) {
-            Log.d(TAG, "showGUI: " + show);
-            Log.d(TAG, "is_video: " + is_video);
-        }
+        //if( MyDebug.LOG ) {
+        //    Log.d(TAG, "showGUI: " + show);
+        //    Log.d(TAG, "is_video: " + is_video);
+        //}
         if( is_video )
             this.show_gui_video = show;
         else
@@ -1361,11 +1361,11 @@ public class MainUI {
     }
 
     public void showGUI() {
-        if( MyDebug.LOG ) {
-            Log.d(TAG, "showGUI");
-            Log.d(TAG, "show_gui_photo: " + show_gui_photo);
-            Log.d(TAG, "show_gui_video: " + show_gui_video);
-        }
+        //if( MyDebug.LOG ) {
+        //    Log.d(TAG, "showGUI");
+        //    Log.d(TAG, "show_gui_photo: " + show_gui_photo);
+        //    Log.d(TAG, "show_gui_video: " + show_gui_video);
+        //}
         if( inImmersiveMode() )
             return;
         if( (show_gui_photo || show_gui_video) && main_activity.usingKitKatImmersiveMode() ) {
