@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -28,6 +29,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -40,10 +42,13 @@ import android.graphics.Paint.Align;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+
+import androidx.documentfile.provider.DocumentFile;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.renderscript.Allocation;
 import android.util.Log;
@@ -1771,6 +1776,155 @@ public class ImageSaver extends Thread {
         else if( request.process_type == Request.ProcessType.KAPTURE ) {
             if( MyDebug.LOG )
                 Log.e(TAG, "kapture");
+
+            main_activity.savingImage(true);
+
+            StorageUtils storageUtils = main_activity.getStorageUtils();
+            ContentResolver contentResolver = main_activity.getContentResolver();
+
+            // Generate filename for the whole group fo files based on the timestamp of the first
+            SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd_HHmmss'Z'", Locale.US);
+            fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+            String timeStamp = fmt.format(request.current_date);
+
+            Uri kaptureDirUri = null;
+            Uri sensorsDirUri = null;
+            Uri recordsDirUri = null;
+            Uri sensorsTxtUri = null;
+            Uri recordsCameraTxtUri = null;
+            Uri recordsGnssTxtUri = null;
+
+            try {
+
+                // OpenCamera root dir
+                Uri treeUri = storageUtils.getTreeUriSAF();
+                Uri rootUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, DocumentsContract.getTreeDocumentId(treeUri));
+                DocumentFile rootDirDocument = DocumentFile.fromTreeUri(main_activity, rootUri);
+                Log.d(TAG, "rootUri: " + rootUri.toString());
+
+                // kapture dir
+                final String KAPTURE_DIR = "kapture";
+                DocumentFile kaptureDirDocument = rootDirDocument.findFile(KAPTURE_DIR);
+                if (kaptureDirDocument == null || !kaptureDirDocument.exists()) {
+                    kaptureDirUri = DocumentsContract.createDocument(contentResolver, rootUri, DocumentsContract.Document.MIME_TYPE_DIR, KAPTURE_DIR);
+                    kaptureDirDocument = DocumentFile.fromTreeUri(main_activity, kaptureDirUri);
+                } else {
+                    kaptureDirUri = kaptureDirDocument.getUri();
+                }
+                Log.d(TAG, "kaptureDirUri: " + kaptureDirUri.toString());
+
+                // sensors dir
+                final String KAPTURE_SENSORS_DIR = "sensors";
+                DocumentFile sensorsDirDocument = kaptureDirDocument.findFile(KAPTURE_SENSORS_DIR);
+                if (sensorsDirDocument == null || !sensorsDirDocument.exists()) {
+                    sensorsDirUri = DocumentsContract.createDocument(contentResolver, kaptureDirUri, DocumentsContract.Document.MIME_TYPE_DIR, KAPTURE_SENSORS_DIR);
+                    sensorsDirDocument = DocumentFile.fromTreeUri(main_activity, sensorsDirUri);
+                } else {
+                    sensorsDirUri = sensorsDirDocument.getUri();
+                }
+                Log.d(TAG, "sensorsDirUri: " + sensorsDirUri.toString());
+
+                // records_data dir
+                final String KAPTURE_RECORDS_DATA_DIR = "records_data";
+                DocumentFile recordsDirDocument = kaptureDirDocument.findFile(KAPTURE_RECORDS_DATA_DIR);
+                if (recordsDirDocument == null || !recordsDirDocument.exists()) {
+                    recordsDirUri = DocumentsContract.createDocument(contentResolver, kaptureDirUri, DocumentsContract.Document.MIME_TYPE_DIR, KAPTURE_RECORDS_DATA_DIR);
+                    recordsDirDocument = DocumentFile.fromTreeUri(main_activity, recordsDirUri);
+                } else {
+                    recordsDirUri = recordsDirDocument.getUri();
+                }
+                Log.d(TAG, "recordsDirUri: " + recordsDirUri.toString());
+
+                /// sensors.txt
+                // device_id, sensor_name, sensor_type, [sensor_params]+
+                // SIMPLE_PINHOLE w, h, f, cx, cy
+                final String KAPTURE_SENSORS_TXT = "sensors.txt";
+                DocumentFile sensorsFileDocument = sensorsDirDocument.findFile(KAPTURE_SENSORS_TXT);
+                if (sensorsFileDocument == null || !sensorsFileDocument.exists()) {
+                    Log.d(TAG,"sensors.txt does not exist. creating it...");
+
+                    // create file
+                    sensorsTxtUri = DocumentsContract.createDocument(contentResolver, sensorsDirUri, "text/plain", KAPTURE_SENSORS_TXT);
+
+                    // write header
+                    ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(sensorsTxtUri, "w");
+                    FileOutputStream sensorsTxtStream = new FileOutputStream(pfd.getFileDescriptor());
+                    sensorsTxtStream.write(new String("# kapture format: 1.1\n").getBytes(StandardCharsets.UTF_8));
+                    sensorsTxtStream.write(new String("# sensor_id, name, sensor_type, [sensor_params]+\n").getBytes(StandardCharsets.UTF_8));
+                    sensorsTxtStream.close();
+                    pfd.close();
+
+                    sensorsFileDocument = DocumentFile.fromSingleUri(main_activity, sensorsTxtUri);
+                } else {
+                    Log.d(TAG,"sensors.txt exists");
+                    sensorsTxtUri = sensorsFileDocument.getUri();
+                }
+                Log.d(TAG, "sensorsTxtUri: " + sensorsTxtUri.toString());
+
+
+                /// records_camera.txt
+                final String KAPTURE_RECORDS_CAMERA_TXT = "records_camera.txt";
+                DocumentFile recordsCameraFileDocument = sensorsDirDocument.findFile(KAPTURE_RECORDS_CAMERA_TXT);
+                if (recordsCameraFileDocument == null || !recordsCameraFileDocument.exists()) {
+                    Log.d(TAG, "records_camera.txt does not exist. creating it...");
+                    recordsCameraTxtUri = DocumentsContract.createDocument(contentResolver, sensorsDirUri, "text/plain", KAPTURE_RECORDS_CAMERA_TXT);
+
+                    ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(recordsCameraTxtUri, "w");
+                    FileOutputStream txtStream = new FileOutputStream(pfd.getFileDescriptor());
+                    txtStream.write(new String("# kapture format: 1.1\n").getBytes(StandardCharsets.UTF_8));
+                    txtStream.write(new String("# timestamp, device_id, image_path\n").getBytes(StandardCharsets.UTF_8));
+                    txtStream.close();
+                    pfd.close();
+
+                    recordsCameraFileDocument = DocumentFile.fromSingleUri(main_activity, recordsCameraTxtUri);
+                } else {
+                    Log.d(TAG,"records_camera.txt exists");
+                    recordsCameraTxtUri = recordsCameraFileDocument.getUri();
+                }
+
+                /// records_gnss.txt
+                final String KAPTURE_RECORDS_GNSS_TXT = "records_gnss.txt";
+                DocumentFile recordsGnssFileDocument = sensorsDirDocument.findFile(KAPTURE_RECORDS_GNSS_TXT);
+                if (recordsGnssFileDocument == null || !recordsGnssFileDocument.exists()) {
+                    Log.d(TAG, "records_gnss.txt does not exist. creating it...");
+                    recordsGnssTxtUri = DocumentsContract.createDocument(contentResolver, sensorsDirUri, "text/plain", KAPTURE_RECORDS_GNSS_TXT);
+
+                    ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(recordsGnssTxtUri, "w");
+                    FileOutputStream txtStream = new FileOutputStream(pfd.getFileDescriptor());
+                    txtStream.write(new String("# kapture format: 1.1\n").getBytes(StandardCharsets.UTF_8));
+                    txtStream.write(new String("# timestamp, device_id, image_path\n").getBytes(StandardCharsets.UTF_8));
+                    txtStream.close();
+                    pfd.close();
+
+                    recordsGnssFileDocument = DocumentFile.fromSingleUri(main_activity, recordsGnssTxtUri);
+                } else {
+                    Log.d(TAG,"records_gnss.txt exists");
+                    recordsGnssTxtUri = recordsGnssFileDocument.getUri();
+                }
+
+            } catch(IOException e) {
+                Log.e(TAG, "IO Exception: " + e.getMessage());
+                e.printStackTrace();
+                main_activity.savingImage(false);
+                return false;
+            }
+            try {
+                // for now, just save all the images:
+                //String suffix = "_";
+                //success = saveImages(request, suffix, false, true, true);
+
+                saveBaseImages(request, "_");
+
+
+                main_activity.savingImage(false);
+                success = true;
+
+            } catch(Exception e) {
+                Log.e(TAG, "Exception:" + e.toString());
+                e.printStackTrace();
+                main_activity.savingImage(false);
+                return false;
+            }
         }
         else {
             // see note above how we used to use "_EXP" for the suffix for multiple images
