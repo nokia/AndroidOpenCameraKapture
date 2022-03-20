@@ -104,30 +104,38 @@ public class ImageSaver extends Thread {
     public volatile boolean test_slow_saving;
     public volatile boolean test_queue_blocked;
 
-    static class Request {
-        enum Type {
-            JPEG, // also covers WEBP
-            RAW,
-            DUMMY
-        }
-        final Type type;
-        enum ProcessType {
-            NORMAL,
-            HDR,
-            AVERAGE,
-            PANORAMA,
-            KAPTURE
-        }
+    enum RequestType {
+        JPEG, // also covers WEBP
+        RAW,
+        DUMMY
+    }
+    enum ProcessType {
+        NORMAL,
+        HDR,
+        AVERAGE,
+        PANORAMA,
+        KAPTURE
+    }
+    enum SaveBase {
+        SAVEBASE_NONE,
+        SAVEBASE_FIRST,
+        SAVEBASE_ALL,
+        SAVEBASE_ALL_PLUS_DEBUG // for PANORAMA
+    }
+    // image_format allows converting the standard JPEG image into another file format.
+    enum ImageFormat {
+        STD, // leave unchanged from the standard JPEG format
+        WEBP,
+        PNG
+    }
+
+    class Request {
+        final RequestType request_type;
         final ProcessType process_type; // for type==JPEG
         final boolean force_suffix; // affects filename suffixes for saving jpeg_images: if true, filenames will always be appended with a suffix like _0, even if there's only 1 image in jpeg_images
         final int suffix_offset; // affects filename suffixes for saving jpeg_images, when force_suffix is true or there are multiple images in jpeg_images: the suffixes will be offset by this number
-        enum SaveBase {
-            SAVEBASE_NONE,
-            SAVEBASE_FIRST,
-            SAVEBASE_ALL,
-            SAVEBASE_ALL_PLUS_DEBUG // for PANORAMA
-        }
         final SaveBase save_base; // whether to save the base images, for process_type HDR, AVERAGE or PANORAMA
+
         /* jpeg_images: for jpeg (may be null otherwise).
          * If process_type==HDR, this should be 1 or 3 images, and the images are combined/converted to a HDR image (if there's only 1
          * image, this uses fake HDR or "DRO").
@@ -138,13 +146,7 @@ public class ImageSaver extends Thread {
         final boolean image_capture_intent;
         final Uri image_capture_intent_uri;
         final boolean using_camera2;
-        /* image_format allows converting the standard JPEG image into another file format.
-#		 */
-        enum ImageFormat {
-            STD, // leave unchanged from the standard JPEG format
-            WEBP,
-            PNG
-        }
+
         ImageFormat image_format;
         int image_quality;
         boolean do_auto_stabilise;
@@ -181,7 +183,7 @@ public class ImageSaver extends Thread {
         final String custom_tag_copyright;
         final int sample_factor; // sampling factor for thumbnail, higher means lower quality
 
-        Request(Type type,
+        Request(RequestType request_type,
                 ProcessType process_type,
                 boolean force_suffix,
                 int suffix_offset,
@@ -206,7 +208,7 @@ public class ImageSaver extends Thread {
                 String custom_tag_artist,
                 String custom_tag_copyright,
                 int sample_factor) {
-            this.type = type;
+            this.request_type = request_type;
             this.process_type = process_type;
             this.force_suffix = force_suffix;
             this.suffix_offset = suffix_offset;
@@ -494,7 +496,7 @@ public class ImageSaver extends Thread {
                 if( MyDebug.LOG )
                     Log.d(TAG, "ImageSaver thread found new request from queue, size is now: " + queue.size());
                 boolean success;
-                switch (request.type) {
+                switch (request.request_type) {
                     case RAW:
                         if (MyDebug.LOG)
                             Log.d(TAG, "request is raw");
@@ -529,7 +531,7 @@ public class ImageSaver extends Thread {
                 }
                 synchronized( this ) {
                     n_images_to_save--;
-                    if( request.type != Request.Type.DUMMY )
+                    if( request.request_type != RequestType.DUMMY )
                         n_real_images_to_save--;
                     if( MyDebug.LOG )
                         Log.d(TAG, "ImageSaver thread processed new request from queue, images to save is now: " + n_images_to_save);
@@ -572,7 +574,7 @@ public class ImageSaver extends Thread {
                           List<byte []> images,
                           boolean image_capture_intent, Uri image_capture_intent_uri,
                           boolean using_camera2,
-                          Request.ImageFormat image_format, int image_quality,
+                          ImageFormat image_format, int image_quality,
                           boolean do_auto_stabilise, double level_angle,
                           boolean is_front_facing,
                           boolean mirror,
@@ -645,7 +647,7 @@ public class ImageSaver extends Thread {
                 raw_image,
                 false, null,
                 false,
-                Request.ImageFormat.STD, 0,
+                ImageFormat.STD, 0,
                 false, 0.0,
                 false,
                 false,
@@ -667,11 +669,11 @@ public class ImageSaver extends Thread {
      *  processType AVERAGE and PANORAMA.
      */
     void startImageBatch(boolean do_in_background,
-                           Request.ProcessType processType,
-                           Request.SaveBase save_base,
+                           ProcessType processType,
+                           SaveBase save_base,
                            boolean image_capture_intent, Uri image_capture_intent_uri,
                            boolean using_camera2,
-                           Request.ImageFormat image_format, int image_quality,
+                           ImageFormat image_format, int image_quality,
                            boolean do_auto_stabilise, double level_angle, boolean want_gyro_matrices,
                            boolean is_front_facing,
                            boolean mirror,
@@ -690,7 +692,7 @@ public class ImageSaver extends Thread {
             Log.d(TAG, "startImageBatch");
             Log.d(TAG, "do_in_background? " + do_in_background);
         }
-        pending_image_average_request = new Request(Request.Type.JPEG,
+        pending_image_average_request = new Request(RequestType.JPEG,
                 processType,
                 false,
                 0,
@@ -778,7 +780,7 @@ public class ImageSaver extends Thread {
                               RawImage raw_image,
                               boolean image_capture_intent, Uri image_capture_intent_uri,
                               boolean using_camera2,
-                              Request.ImageFormat image_format, int image_quality,
+                              ImageFormat image_format, int image_quality,
                               boolean do_auto_stabilise, double level_angle,
                               boolean is_front_facing,
                               boolean mirror,
@@ -802,11 +804,11 @@ public class ImageSaver extends Thread {
 
         //do_in_background = false;
 
-        Request request = new Request(is_raw ? Request.Type.RAW : Request.Type.JPEG,
-                is_hdr ? Request.ProcessType.HDR : Request.ProcessType.NORMAL,
+        Request request = new Request(is_raw ? RequestType.RAW : RequestType.JPEG,
+                is_hdr ? ProcessType.HDR : ProcessType.NORMAL,
                 force_suffix,
                 suffix_offset,
-                save_expo ? Request.SaveBase.SAVEBASE_ALL : Request.SaveBase.SAVEBASE_NONE,
+                save_expo ? SaveBase.SAVEBASE_ALL : SaveBase.SAVEBASE_NONE,
                 jpeg_images,
                 raw_image,
                 image_capture_intent, image_capture_intent_uri,
@@ -874,7 +876,7 @@ public class ImageSaver extends Thread {
                     // but we synchronize modification to avoid risk of problems related to compiler optimisation (local caching or reordering)
                     // also see FindBugs warning due to inconsistent synchronisation
                     n_images_to_save++; // increment before adding to the queue, just to make sure the main thread doesn't think we're all done
-                    if( request.type != Request.Type.DUMMY )
+                    if( request.request_type != RequestType.DUMMY )
                         n_real_images_to_save++;
 
                     main_activity.runOnUiThread(new Runnable() {
@@ -913,16 +915,16 @@ public class ImageSaver extends Thread {
     }
 
     private void addDummyRequest() {
-        Request dummy_request = new Request(Request.Type.DUMMY,
-                Request.ProcessType.NORMAL,
+        Request dummy_request = new Request(RequestType.DUMMY,
+                ProcessType.NORMAL,
                 false,
                 0,
-                Request.SaveBase.SAVEBASE_NONE,
+                SaveBase.SAVEBASE_NONE,
                 null,
                 null,
                 false, null,
                 false,
-                Request.ImageFormat.STD, 0,
+                ImageFormat.STD, 0,
                 false, 0.0, null,
                 false,
                 false,
@@ -1309,7 +1311,7 @@ public class ImageSaver extends Thread {
         if( MyDebug.LOG )
             Log.d(TAG, "saveImageNow");
 
-        if( request.type != Request.Type.JPEG ) {
+        if( request.request_type != RequestType.JPEG ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "saveImageNow called with non-jpeg request");
             // throw runtime exception, as this is a programming error
@@ -1323,7 +1325,7 @@ public class ImageSaver extends Thread {
         }
 
         boolean success;
-        if( request.process_type == Request.ProcessType.AVERAGE ) {
+        if( request.process_type == ProcessType.AVERAGE ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "average");
 
@@ -1509,7 +1511,7 @@ public class ImageSaver extends Thread {
             nr_bitmap.recycle();
             System.gc();
         }
-        else if( request.process_type == Request.ProcessType.HDR ) {
+        else if( request.process_type == ProcessType.HDR ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "hdr");
             if( request.jpeg_images.size() != 1 && request.jpeg_images.size() != 3 ) {
@@ -1607,12 +1609,12 @@ public class ImageSaver extends Thread {
             hdr_bitmap.recycle();
             System.gc();
         }
-        else if( request.process_type == Request.ProcessType.PANORAMA ) {
+        else if( request.process_type == ProcessType.PANORAMA ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "panorama");
 
             // save text file with gyro info
-            if( !request.image_capture_intent && request.save_base == Request.SaveBase.SAVEBASE_ALL_PLUS_DEBUG ) {
+            if( !request.image_capture_intent && request.save_base == SaveBase.SAVEBASE_ALL_PLUS_DEBUG ) {
 				/*final StringBuilder gyro_text = new StringBuilder();
 				gyro_text.append("Panorama gyro debug info\n");
 				gyro_text.append("n images: " + request.gyro_rotation_matrix.size() + ":\n");
@@ -1773,7 +1775,7 @@ public class ImageSaver extends Thread {
             panorama.recycle();
             System.gc();
         }
-        else if( request.process_type == Request.ProcessType.KAPTURE ) {
+        else if( request.process_type == ProcessType.KAPTURE ) {
             if( MyDebug.LOG )
                 Log.e(TAG, "kapture");
 
@@ -1971,25 +1973,25 @@ public class ImageSaver extends Thread {
     private void saveBaseImages(Request request, String suffix) {
         if( MyDebug.LOG )
             Log.d(TAG, "saveBaseImages");
-        if( !request.image_capture_intent && request.save_base != Request.SaveBase.SAVEBASE_NONE ) {
+        if( !request.image_capture_intent && request.save_base != SaveBase.SAVEBASE_NONE ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "save base images");
 
             Request base_request = request;
-            if( request.process_type == Request.ProcessType.PANORAMA ) {
+            if( request.process_type == ProcessType.PANORAMA ) {
                 // Important to save base images for panorama in PNG format, to avoid risk of not being able to reproduce the
                 // same issue - decompressing JPEGs can vary between devices!
                 // Also disable options that don't really make sense for base panorama images.
                 base_request = request.copy();
-                base_request.image_format = Request.ImageFormat.STD;  // TODO(soeroesg): changed from PNG to STD (JPEG)
+                base_request.image_format = ImageFormat.STD;  // TODO(soeroesg): changed from PNG to STD (JPEG)
                 base_request.preference_stamp = "preference_stamp_no";
                 base_request.preference_textstamp = "";
                 base_request.do_auto_stabilise = false;
                 base_request.mirror = false;
             }
-            else if( request.process_type == Request.ProcessType.KAPTURE ) {
+            else if( request.process_type == ProcessType.KAPTURE ) {
                 base_request = request.copy();
-                base_request.image_format = Request.ImageFormat.STD;
+                base_request.image_format = ImageFormat.STD;
                 base_request.preference_stamp = "preference_stamp_no";
                 base_request.preference_textstamp = "";
                 base_request.do_auto_stabilise = false;
@@ -1998,14 +2000,14 @@ public class ImageSaver extends Thread {
                 //base_request.store_geo_direction = true;
                 //base_request.store_ypr = true;
             }
-            else if( request.process_type == Request.ProcessType.AVERAGE ) {
+            else if( request.process_type == ProcessType.AVERAGE ) {
                 // In case the base image needs to be postprocessed, we still want to save base images for NR at the 100% JPEG quality
                 base_request = request.copy();
                 base_request.image_quality = 100;
             }
             // don't update the thumbnails, only do this for the final image - so user doesn't think it's complete, click gallery, then wonder why the final image isn't there
             // also don't mark these images as being shared
-            saveImages(base_request, suffix, base_request.save_base == Request.SaveBase.SAVEBASE_FIRST, false, false);
+            saveImages(base_request, suffix, base_request.save_base == SaveBase.SAVEBASE_FIRST, false, false);
             // ignore return of saveImages - as for deciding whether to pause preview or not (which is all we use the success return for), all that matters is whether we saved the final HDR image
         }
     }
@@ -2492,7 +2494,7 @@ public class ImageSaver extends Thread {
 
         boolean dategeo_stamp = request.preference_stamp.equals("preference_stamp_yes");
         boolean text_stamp = request.preference_textstamp.length() > 0;
-        if( bitmap != null || request.image_format != Request.ImageFormat.STD || request.do_auto_stabilise || request.mirror || dategeo_stamp || text_stamp ) {
+        if( bitmap != null || request.image_format != ImageFormat.STD || request.do_auto_stabilise || request.mirror || dategeo_stamp || text_stamp ) {
             // either we have a bitmap, or will need to decode the bitmap to do post-processing
             if( !ignore_exif_orientation ) {
                 if( bitmap != null ) {
@@ -2512,7 +2514,7 @@ public class ImageSaver extends Thread {
         if( request.mirror ) {
             bitmap = mirrorImage(data, bitmap);
         }
-        if( request.image_format != Request.ImageFormat.STD && bitmap == null ) {
+        if( request.image_format != ImageFormat.STD && bitmap == null ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "need to decode bitmap to convert file format");
             bitmap = loadBitmapWithRotation(data, true);
@@ -2547,7 +2549,7 @@ public class ImageSaver extends Thread {
         if( MyDebug.LOG )
             Log.d(TAG, "saveSingleImageNow");
 
-        if( request.type != Request.Type.JPEG ) {
+        if( request.request_type != RequestType.JPEG ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "saveImageNow called with non-jpeg request");
             // throw runtime exception, as this is a programming error
@@ -2764,7 +2766,7 @@ public class ImageSaver extends Thread {
                     success = true;
                 }
 
-                if( request.image_format == Request.ImageFormat.STD ) {
+                if( request.image_format == ImageFormat.STD ) {
                     // handle transferring/setting Exif tags (JPEG format only)
                     if( bitmap != null ) {
                         // need to update EXIF data! (only supported for JPEG image formats)
@@ -3320,7 +3322,7 @@ public class ImageSaver extends Thread {
                 exif_new.setAttribute(ExifInterface.TAG_USER_COMMENT, exif_user_comment);
         }
 
-        modifyExif(exif_new, request.type == Request.Type.JPEG, request.using_camera2, request.current_date, request.store_location, request.store_geo_direction, request.geo_direction, request.custom_tag_artist, request.custom_tag_copyright, request.level_angle, request.pitch_angle, request.store_ypr);
+        modifyExif(exif_new, request.request_type == RequestType.JPEG, request.using_camera2, request.current_date, request.store_location, request.store_geo_direction, request.geo_direction, request.custom_tag_artist, request.custom_tag_copyright, request.level_angle, request.pitch_angle, request.store_ypr);
         setDateTimeExif(exif_new);
         exif_new.saveAttributes();
     }
@@ -3688,7 +3690,7 @@ public class ImageSaver extends Thread {
                 try {
                     ExifInterface exif = exif_holder.getExif();
                     if( exif != null ) {
-                        modifyExif(exif, request.type == Request.Type.JPEG, request.using_camera2, request.current_date, request.store_location, request.store_geo_direction, request.geo_direction, request.custom_tag_artist, request.custom_tag_copyright, request.level_angle, request.pitch_angle, request.store_ypr);
+                        modifyExif(exif, request.request_type == RequestType.JPEG, request.using_camera2, request.current_date, request.store_location, request.store_geo_direction, request.geo_direction, request.custom_tag_artist, request.custom_tag_copyright, request.level_angle, request.pitch_angle, request.store_ypr);
                         exif.saveAttributes();
                     }
                 }
@@ -3705,7 +3707,7 @@ public class ImageSaver extends Thread {
             if( MyDebug.LOG )
                 Log.d(TAG, "*** time to add additional exif info: " + (System.currentTimeMillis() - time_s));
         }
-        else if( needGPSTimestampHack(request.type == Request.Type.JPEG, request.using_camera2, request.store_location) ) {
+        else if( needGPSTimestampHack(request.request_type == RequestType.JPEG, request.using_camera2, request.store_location) ) {
             if( MyDebug.LOG )
                 Log.d(TAG, "remove GPS timestamp hack");
             try {

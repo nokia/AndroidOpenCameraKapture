@@ -637,7 +637,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         else if( photo_mode == PhotoMode.NoiseReduction )
             return 100;
 
-        if( getImageFormatPref() != ImageSaver.Request.ImageFormat.STD )
+        if( getImageFormatPref() != ImageSaver.ImageFormat.STD )
             return 100;
 
         return getSaveImageQualityPref();
@@ -1664,14 +1664,14 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         return( photo_mode == PhotoMode.DRO );
     }
 
-    private ImageSaver.Request.ImageFormat getImageFormatPref() {
+    private ImageSaver.ImageFormat getImageFormatPref() {
         switch( sharedPreferences.getString(PreferenceKeys.ImageFormatPreferenceKey, "preference_image_format_jpeg") ) {
             case "preference_image_format_webp":
-                return ImageSaver.Request.ImageFormat.WEBP;
+                return ImageSaver.ImageFormat.WEBP;
             case "preference_image_format_png":
-                return ImageSaver.Request.ImageFormat.PNG;
+                return ImageSaver.ImageFormat.PNG;
             default:
-                return ImageSaver.Request.ImageFormat.STD;
+                return ImageSaver.ImageFormat.STD;
         }
     }
 
@@ -3183,7 +3183,7 @@ public class MyApplicationInterface extends BasicApplicationInterface {
         }
 
         boolean using_camera2 = main_activity.getPreview().usingCamera2API();
-        ImageSaver.Request.ImageFormat image_format = getImageFormatPref();
+        ImageSaver.ImageFormat image_format = getImageFormatPref();
         boolean store_ypr = sharedPreferences.getBoolean(PreferenceKeys.AddYPRToComments, false) &&
                 main_activity.getPreview().hasLevelAngle() &&
                 main_activity.getPreview().hasPitchAngle() &&
@@ -3291,15 +3291,15 @@ public class MyApplicationInterface extends BasicApplicationInterface {
             }
 
             if( first_image ) {
-                ImageSaver.Request.SaveBase save_base = ImageSaver.Request.SaveBase.SAVEBASE_NONE;
+                ImageSaver.SaveBase save_base = ImageSaver.SaveBase.SAVEBASE_NONE;
                 if( photo_mode == PhotoMode.NoiseReduction ) {
                     String save_base_preference = sharedPreferences.getString(PreferenceKeys.NRSaveExpoPreferenceKey, "preference_nr_save_no");
                     switch( save_base_preference ) {
                         case "preference_nr_save_single":
-                            save_base = ImageSaver.Request.SaveBase.SAVEBASE_FIRST;
+                            save_base = ImageSaver.SaveBase.SAVEBASE_FIRST;
                             break;
                         case "preference_nr_save_all":
-                            save_base = ImageSaver.Request.SaveBase.SAVEBASE_ALL;
+                            save_base = ImageSaver.SaveBase.SAVEBASE_ALL;
                             break;
                     }
                 }
@@ -3307,27 +3307,27 @@ public class MyApplicationInterface extends BasicApplicationInterface {
                     String save_base_preference = sharedPreferences.getString(PreferenceKeys.PanoramaSaveExpoPreferenceKey, "preference_panorama_save_no");
                     switch( save_base_preference ) {
                         case "preference_panorama_save_all":
-                            save_base = ImageSaver.Request.SaveBase.SAVEBASE_ALL;
+                            save_base = ImageSaver.SaveBase.SAVEBASE_ALL;
                             break;
                         case "preference_panorama_save_all_plus_debug":
-                            save_base = ImageSaver.Request.SaveBase.SAVEBASE_ALL_PLUS_DEBUG;
+                            save_base = ImageSaver.SaveBase.SAVEBASE_ALL_PLUS_DEBUG;
                             break;
                     }
                 }
                 else if( photo_mode == PhotoMode.Kapture ) {
-                    save_base = ImageSaver.Request.SaveBase.SAVEBASE_ALL_PLUS_DEBUG;
+                    save_base = ImageSaver.SaveBase.SAVEBASE_ALL_PLUS_DEBUG;
                 }
 
-                ImageSaver.Request.ProcessType process_type = ImageSaver.Request.ProcessType.NORMAL;
+                ImageSaver.ProcessType process_type = ImageSaver.ProcessType.NORMAL;
                 switch (photo_mode) {
                     case NoiseReduction:
-                        process_type = ImageSaver.Request.ProcessType.AVERAGE;
+                        process_type = ImageSaver.ProcessType.AVERAGE;
                         break;
                     case Panorama:
-                        process_type = ImageSaver.Request.ProcessType.PANORAMA;
+                        process_type = ImageSaver.ProcessType.PANORAMA;
                         break;
                     case Kapture:
-                        process_type = ImageSaver.Request.ProcessType.KAPTURE;
+                        process_type = ImageSaver.ProcessType.KAPTURE;
                         break;
                     default:
                         Log.e(TAG, "Unexpected PhotoMode received!");
