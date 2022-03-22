@@ -3,6 +3,7 @@ package net.sourceforge.opencamera;
 import net.sourceforge.opencamera.cameracontroller.CameraController;
 import net.sourceforge.opencamera.cameracontroller.RawImage;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -10,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -1971,6 +1973,105 @@ public class ImageSaver extends Thread {
 
                 main_activity.savingImage(false);
                 success = true;
+
+            } catch(Exception e) {
+                Log.e(TAG, "Exception:" + e.toString());
+                e.printStackTrace();
+                main_activity.savingImage(false);
+                return false;
+            }
+
+            // Fill the metadata documents. The TXT files should already exist at this point.
+            try {
+                // Device ID
+                // TODO(soeroesg): determine some meaningful device ID here. Now use the Android SecureId.
+                String device_secure_id = android.provider.Settings.Secure.getString(contentResolver, android.provider.Settings.Secure.ANDROID_ID);
+                Log.d(TAG, "device secure ID: " +  device_secure_id);
+
+                // Camera information (from EXIF of the first image)
+                InputStream exifInputStream_0 = new ByteArrayInputStream(request.jpeg_images.get(0));
+                ExifInterface exif_0 = new ExifInterface(exifInputStream_0);
+                String exif_focal_length = exif_0.getAttribute(ExifInterface.TAG_FOCAL_LENGTH);
+                String exif_focal_length_in_35mm_film = exif_0.getAttribute(ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM);
+                String exif_make = exif_0.getAttribute(ExifInterface.TAG_MAKE);
+                String exif_model = exif_0.getAttribute(ExifInterface.TAG_MODEL);
+                Log.d(TAG, "exif_focal_length: " + exif_focal_length);
+                Log.d(TAG, "exif_focal_length_in_35mm_film: " + exif_focal_length_in_35mm_film);
+                Log.d(TAG, "exif_make: " + exif_make);
+                Log.d(TAG, "exif_model: " + exif_model);
+                String exif_make_safe = exif_make.replace(".", "_").replace("/", "_").replace(" ", "_");
+                String exif_model_safe = exif_model.replace(".", "_").replace("/", "_").replace(" ", "_");
+                exifInputStream_0.close();
+
+
+                // ----------
+                // sensors.txt
+                // device_sensor_id, name, sensor_type, [sensor_params]+
+
+                // Camera sensor
+                // NOTE: there might be multiple cameras.
+                // sensor_params = [SIMPLE_PINHOLE w, h, f, cx, cy]
+                String current_camera_sensor_line = new String();
+                String camera_sensor_device_id_str = device_secure_id + "_cam0"; current_camera_sensor_line += camera_sensor_device_id_str + ", ";
+                String sensor_name = "android" + "_" + exif_make_safe + "_" + exif_model_safe + "_camera"; current_camera_sensor_line += sensor_name + ", ";
+                String sensor_type = "camera"; current_camera_sensor_line += sensor_type + ", ";
+                String sensor_params = new String();
+                current_camera_sensor_line += "SIMPLE_PINHOLE" + ", ";
+                CameraController.Size picureSize = main_activity.getPreview().getCameraController().getPictureSize();
+                int w = picureSize.width; sensor_params += Integer.toString(w); sensor_params += ", ";
+                int h = picureSize.height; sensor_params += Integer.toString(h); sensor_params += ", ";
+                float f = Float.parseFloat(exif_focal_length_in_35mm_film)/35.0f * w; sensor_params += Float.toString(f); sensor_params += ", ";
+                float cx = (float)w/2.0f; sensor_params += Float.toString(cx); sensor_params += ", ";
+                float cy = (float)h/2.0f; sensor_params += Float.toString(cy);
+                current_camera_sensor_line += sensor_params;
+
+                // GPS sensor
+                // sensor_params = [EPSG]
+                String current_gnss_sensor_line = new String();
+                String gnss_sensor_device_id_str = device_secure_id + "_gnss"; current_gnss_sensor_line += gnss_sensor_device_id_str + ", ";
+                sensor_name = "android" + "_" + exif_make_safe + "_" + exif_model_safe + "_gnss"; current_gnss_sensor_line += sensor_name + ", ";
+                sensor_type = "gnss"; current_gnss_sensor_line += sensor_type + ", ";
+                sensor_params = new String();
+                sensor_params += "EPSG:4326";
+                current_gnss_sensor_line += sensor_params;
+
+                // check whether our camera ID and/or GPS ID is contained (and whether parameters are the same)
+                // TODO(soeroesg): if ID matches but the parameters don't, we should generate a new ID
+                InputStream inputStream = contentResolver.openInputStream(sensorsTxtUri);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                boolean has_same_camera = false;
+                boolean has_same_gnss = false;
+                while ((line = reader.readLine()) != null) {
+                    if (line.compareTo(current_camera_sensor_line) == 0) {
+                        has_same_camera = true;
+                    }
+                    if (line.compareTo(current_gnss_sensor_line) == 0) {
+                        has_same_gnss = true;
+                    }
+                }
+                reader.close();
+                inputStream.close();
+
+                // Write them out if necessary
+                if (!has_same_camera) {
+                    // This seems to be a new sensor, add it to the list
+                    ParcelFileDescriptor sensorsTxtPfd = contentResolver.openFileDescriptor(sensorsTxtUri, "wa");
+                    FileOutputStream sensorsTxtStream = new FileOutputStream(sensorsTxtPfd.getFileDescriptor());
+                    current_camera_sensor_line += "\n";
+                    sensorsTxtStream.write(current_camera_sensor_line.getBytes(StandardCharsets.UTF_8));
+                    sensorsTxtStream.close();
+                    sensorsTxtPfd.close();
+                }
+                if (!has_same_gnss) {
+                    // This seems to be a new sensor, add it to the list
+                    ParcelFileDescriptor sensorsTxtPfd = contentResolver.openFileDescriptor(sensorsTxtUri, "wa");
+                    FileOutputStream sensorsTxtStream = new FileOutputStream(sensorsTxtPfd.getFileDescriptor());
+                    current_gnss_sensor_line += "\n";
+                    sensorsTxtStream.write(current_gnss_sensor_line.getBytes(StandardCharsets.UTF_8));
+                    sensorsTxtStream.close();
+                    sensorsTxtPfd.close();
+                }
 
             } catch(Exception e) {
                 Log.e(TAG, "Exception:" + e.toString());
