@@ -2073,6 +2073,50 @@ public class ImageSaver extends Thread {
                     sensorsTxtPfd.close();
                 }
 
+
+                // ----------
+                // records_camera.txt
+                // timestamp, device_id, image_path
+
+                ParcelFileDescriptor recordsCameraPfd = contentResolver.openFileDescriptor(recordsCameraTxtUri, "wa");
+                FileOutputStream recordsCameraTxtStream = new FileOutputStream(recordsCameraPfd.getFileDescriptor());
+                for (int i = 0; i <request.save_uris.size(); i++) {
+                    Uri saveUri = request.save_uris.get(i);
+                    if (saveUri == null) { // should not happen
+                        continue;
+                    }
+
+                    // we store paths relative to the records_data directory
+                    String[] relativePathComponents = DocumentsContract.getDocumentId(saveUri).split("/");
+                    String relativePath = relativePathComponents[relativePathComponents.length - 1];
+
+                    InputStream exifInputStream_i = new ByteArrayInputStream(request.jpeg_images.get(i));
+                    ExifInterface exif_i = new ExifInterface(exifInputStream_i);
+                    String exif_datetime_original = exif_i.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " exif_datetime_original: " + exif_datetime_original);
+                    //String exif_offset_time_original = exif_i.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL); // WARNING: this is null
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " exif_offset_time_original: " + exif_offset_time_original);
+                    //String exif_subsec_time_original = exif_i.getAttribute(ExifInterface.TAG_SUBSEC_TIME_ORIGINAL);
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " exif_subsec_time_original: " + exif_subsec_time_original);
+                    //Long image_time = exif_i.getDateTimeOriginal(); // not available
+                    exifInputStream_i.close();
+
+                    java.text.DateFormat image_datetime_formatter = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss");
+                    Date date = (Date)image_datetime_formatter.parse(exif_datetime_original);
+                    Long image_time_since_epoch = date.getTime();
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " system time: " +  Long.toString(System.currentTimeMillis()));
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " parsed date: " + Long.toString(image_time_since_epoch));
+
+                    String recordCameraLine = new String();
+                    recordCameraLine += Long.toString(image_time_since_epoch); recordCameraLine += ", ";
+                    recordCameraLine += camera_sensor_device_id_str; recordCameraLine += ", ";
+                    recordCameraLine += relativePath;
+                    recordCameraLine += "\n";
+                    recordsCameraTxtStream.write(recordCameraLine.getBytes(StandardCharsets.UTF_8));
+                }
+                recordsCameraTxtStream.close();
+                recordsCameraPfd.close();
+
             } catch(Exception e) {
                 Log.e(TAG, "Exception:" + e.toString());
                 e.printStackTrace();
