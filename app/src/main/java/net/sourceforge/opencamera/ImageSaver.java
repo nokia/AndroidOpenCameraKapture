@@ -2117,6 +2117,89 @@ public class ImageSaver extends Thread {
                 recordsCameraTxtStream.close();
                 recordsCameraPfd.close();
 
+
+                // ----------
+                // records_gnss.txt
+                // timestamp, device_id, x, y, z, utc, dop
+
+                ParcelFileDescriptor recordsGnssPfd = contentResolver.openFileDescriptor(recordsGnssTxtUri, "wa");
+                FileOutputStream recordsGnssTxtStream = new FileOutputStream(recordsGnssPfd.getFileDescriptor());
+                for (int i = 0; i <request.save_uris.size(); i++) {
+
+                    InputStream exifInputStream_i = new ByteArrayInputStream(request.jpeg_images.get(i));
+                    ExifInterface exif_i = new ExifInterface(exifInputStream_i);
+
+                    String exif_datetime_original = exif_i.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
+                    //String exif_offset_time_original = exif_i.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL); // WARNING: this is null
+                    //java.text.DateFormat image_datetime_formatter = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss ±hh:mm");
+                    ///Date date = (Date)image_datetime_formatter.parse(exif_datetime_original + " " + exif_offset_time_original);
+                    java.text.DateFormat image_datetime_formatter = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss");
+                    Date date = (Date)image_datetime_formatter.parse(exif_datetime_original);
+                    Long image_time_since_epoch = date.getTime();
+
+                    String exif_gps_altitude = exif_i.getAttribute(ExifInterface.TAG_GPS_ALTITUDE);
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " exif_gps_altitude: " + exif_gps_altitude);
+                    String exif_gps_altitude_ref = exif_i.getAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF);
+                    String exif_gps_latitude = exif_i.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " exif_gps_latitude: " + exif_gps_latitude);
+                    String exif_gps_latitude_ref = exif_i.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
+                    String exif_gps_longitude = exif_i.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " exif_gps_longitude: " + exif_gps_longitude);
+                    String exif_gps_longitude_ref = exif_i.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
+                    String exif_gps_processing_method = exif_i.getAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD);
+                    String exif_gps_datestamp = exif_i.getAttribute(ExifInterface.TAG_GPS_DATESTAMP);
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " exif_gps_datestamp: " + exif_gps_datestamp);
+                    String exif_gps_timestamp = exif_i.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP);
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " exif_gps_timestamp: " + exif_gps_timestamp);
+                    String exif_gps_area_information = exif_i.getAttribute(ExifInterface.TAG_GPS_AREA_INFORMATION);
+                    String exif_gps_differential = exif_i.getAttribute(ExifInterface.TAG_GPS_DIFFERENTIAL);
+                    String exif_gps_dop = exif_i.getAttribute(ExifInterface.TAG_GPS_DOP);
+                    //Log.d(TAG, "frame " + Integer.toString(i) + " exif_gps_dop: " + exif_gps_dop);
+                    String exif_gps_measure_mode = exif_i.getAttribute(ExifInterface.TAG_GPS_MEASURE_MODE);
+
+                    Long gps_time = exif_i.getGpsDateTime();
+                    double[] latlong = exif_i.getLatLong();
+                    if (latlong == null) {
+                        throw new IllegalArgumentException("Cannot parse EXIF latlong");
+                    }
+                    double gps_longitude = latlong[1];
+                    double gps_latitude = latlong[0];
+                    double gps_altitude = exif_i.getAltitude(0.0); // default 0.0
+                    exifInputStream_i.close();
+
+                    java.text.DateFormat gps_datetime_formatter = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss");
+                    Date gps_date = (Date)gps_datetime_formatter.parse(exif_gps_datestamp + " " + exif_gps_timestamp);
+                    Long gps_time_since_epoch = gps_date.getTime();
+                    //Log.e(TAG, "gps_time (parse automatically): " + gps_time);
+                    //Log.e(TAG, "gps_time_since_epoch (parsed manually): " + gps_time_since_epoch);
+
+                    // timestamp, device_id, x, y, z, utc, dop
+                    // timestamp: the timestamp in same time referential as other sensors (not GNSS clock).
+                    // x: longitude in degrees, y: latitude in degrees, z: altitude in meters.
+                    // utc: The UTC timestamp provided by GNSS clock in Unix format. 0 if not available.
+                    // dop: the dilution of precision given by GNSS device. 0 if not available.
+                    String recordGnssLine = new String();
+                    recordGnssLine += image_time_since_epoch; recordGnssLine += ", ";
+                    recordGnssLine += gnss_sensor_device_id_str; recordGnssLine += ", ";
+                    recordGnssLine += Double.toString(gps_longitude); recordGnssLine += ", ";
+                    recordGnssLine += Double.toString(gps_latitude); recordGnssLine += ", ";
+                    recordGnssLine += Double.toString(gps_altitude); recordGnssLine += ", ";
+                    recordGnssLine += gps_time_since_epoch; recordGnssLine += ", ";
+                    recordGnssLine += exif_gps_dop != null ? exif_gps_dop : "0";
+                    recordGnssLine += "\n";
+                    recordsGnssTxtStream.write(recordGnssLine.getBytes(StandardCharsets.UTF_8));
+                }
+                recordsGnssTxtStream.close();
+                recordsGnssPfd.close();
+
+
+                // TODO(soeroesg): We could add an orientation sensor and write out what is currently written into the EXIF User metadata
+                double geo_direction = request.geo_direction;
+                double level_angle = request.level_angle;
+                double pitch_angle = request.pitch_angle;
+                Location location =  request.location;
+
+
             } catch(Exception e) {
                 Log.e(TAG, "Exception:" + e.toString());
                 e.printStackTrace();
