@@ -338,6 +338,7 @@ public class StorageUtils {
     // only valid if isUsingSAF()
     String getSaveLocationSAF() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        // If SaveLocationSAF was never set, ask the user to set it now
         if (!sharedPreferences.contains(PreferenceKeys.SaveLocationSAFPreferenceKey)) {
             MainActivity main_activity = (MainActivity)context;
             main_activity.runOnUiThread(new Runnable() {

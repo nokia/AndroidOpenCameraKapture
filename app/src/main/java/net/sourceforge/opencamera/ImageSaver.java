@@ -10,11 +10,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -183,6 +183,11 @@ public class ImageSaver extends Thread {
         final String custom_tag_copyright;
         final int sample_factor; // sampling factor for thumbnail, higher means lower quality
 
+        // This is a workaround for not being able to submit the index or a concrete Uri to saveSingleImageNow()
+        // TODO(soeroesg): cur_index_in_batch and save_uris are not yet part of the constructor and deep copy
+        public List<Uri> save_uris = null; // optional, we can specify the save URIs of a batch manually
+        public int cur_index_in_batch = 0; // current index in the batch that is being saved
+
         Request(RequestType request_type,
                 ProcessType process_type,
                 boolean force_suffix,
@@ -256,7 +261,7 @@ public class ImageSaver extends Thread {
          *  data will not be copied.
          */
         Request copy() {
-            return new Request(this.type,
+            Request r = new Request(this.request_type,
                     this.process_type,
                     this.force_suffix,
                     this.suffix_offset,
@@ -280,6 +285,9 @@ public class ImageSaver extends Thread {
                     this.custom_tag_artist,
                     this.custom_tag_copyright,
                     this.sample_factor);
+            r.save_uris = this.save_uris;
+            r.cur_index_in_batch = this.cur_index_in_batch;
+            return r;
         }
     }
 
@@ -1910,6 +1918,57 @@ public class ImageSaver extends Thread {
                 main_activity.savingImage(false);
                 return false;
             }
+
+            // Build full URIs of the images in advance
+            // We redirect all images from the root folder into the records_data folder
+            // but the Storageutils do not support passing a target directory
+            try {
+                int num_images = request.jpeg_images.size();
+                request.save_uris = new ArrayList<Uri>(num_images);
+                for (int i = 0; i < num_images; i++) {
+                    String suffix = "_" + (i + request.suffix_offset);
+                    String extension;
+                    switch (request.image_format) {
+                        case WEBP:
+                            extension = "webp";
+                            break;
+                        case PNG:
+                            extension = "png";
+                            break;
+                        case STD:
+                        default:
+                            extension = "jpg";
+                            break;
+                    }
+
+                    // NOTE: this is what we want, but inside a custom folder
+                    // Uri image_i_uri = storageUtils.createOutputMediaFileSAF(StorageUtils.MEDIA_TYPE_IMAGE, filename_suffix, extension, request.current_date);
+
+                    String index = "";
+                    String prefix = "IMG_";
+                    String mediaFilename = prefix + timeStamp + suffix + index + "." + extension;
+                    String mimeType = storageUtils.getImageMimeType(extension);
+
+                    Log.e(TAG, "Assembling image_i_uri:");
+                    Log.e(TAG, "storageUtils.getTreeUriSAF(): " + storageUtils.getTreeUriSAF().toString());
+
+                    // note that DocumentsContract.createDocument will automatically append to the filename if it already exists
+                    Uri image_i_uri = DocumentsContract.createDocument(contentResolver, recordsDirUri, mimeType, mediaFilename);
+			        if( image_i_uri == null )
+                        throw new IOException();
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "image_i_uri: " + image_i_uri);
+
+                    request.save_uris.add(image_i_uri);
+                }
+            }
+            catch (Exception e) {
+                Log.e(TAG, "Exception: " + e.getMessage());
+                e.printStackTrace();
+                main_activity.savingImage(false);
+                return false;
+            }
+
             try {
                 // for now, just save all the images:
                 //String suffix = "_";
@@ -1951,12 +2010,16 @@ public class ImageSaver extends Thread {
     private boolean saveImages(Request request, String suffix, boolean first_only, boolean update_thumbnail, boolean share) {
         boolean success = true;
         int mid_image = request.jpeg_images.size()/2;
-        for(int i=0;i<request.jpeg_images.size();i++) {
+        for (int i = 0; i < request.jpeg_images.size(); i++) {
             // note, even if one image fails, we still try saving the other images - might as well give the user as many images as we can...
             byte [] image = request.jpeg_images.get(i);
             boolean multiple_jpegs = request.jpeg_images.size() > 1 && !first_only;
             String filename_suffix = (multiple_jpegs || request.force_suffix) ? suffix + (i + request.suffix_offset) : "";
             boolean share_image = share && (i == mid_image);
+
+            // update the current index in batch. TODO(soeroesg): ideally, this would be submitted to saveSingleImageNow as a parameter
+            request.cur_index_in_batch = i;
+
             if( !saveSingleImageNow(request, image, null, filename_suffix, update_thumbnail, share_image, false, false) ) {
                 if( MyDebug.LOG )
                     Log.e(TAG, "saveSingleImageNow failed for image: " + i);
@@ -2662,7 +2725,21 @@ public class ImageSaver extends Thread {
                 }
             }
             else if( storageUtils.isUsingSAF() ) {
-                saveUri = storageUtils.createOutputMediaFileSAF(StorageUtils.MEDIA_TYPE_IMAGE, filename_suffix, extension, request.current_date);
+                if (request.save_uris != null) {
+                    if (request.cur_index_in_batch > request.save_uris.size()) {
+                        throw new IllegalArgumentException("index_in_batch > save_uris.size()");
+                    }
+                    // if URIs were submitted with the request, use those
+                    // TODO(soeroesg): this is part of a hack that allows setting the URIs in advance for Kapture mode
+                    saveUri = request.save_uris.get(request.cur_index_in_batch);
+                    if (saveUri == null) {
+                        throw new IllegalArgumentException("null Uri provided for image " + request.cur_index_in_batch + " of the batch");
+                    }
+                    Log.d(TAG, "using provided saveUri: " + saveUri.toString());
+                } else {
+                    saveUri = storageUtils.createOutputMediaFileSAF(StorageUtils.MEDIA_TYPE_IMAGE, filename_suffix, extension, request.current_date);
+                    Log.d(TAG, "using generated saveUri: " + saveUri.toString());
+                }
             }
             else if( MainActivity.useScopedStorage() ) {
                 if( MyDebug.LOG )
