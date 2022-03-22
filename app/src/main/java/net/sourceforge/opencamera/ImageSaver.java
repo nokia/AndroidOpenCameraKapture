@@ -1836,9 +1836,9 @@ public class ImageSaver extends Thread {
 
                 // records_data dir
                 final String KAPTURE_RECORDS_DATA_DIR = "records_data";
-                DocumentFile recordsDirDocument = kaptureDirDocument.findFile(KAPTURE_RECORDS_DATA_DIR);
+                DocumentFile recordsDirDocument = sensorsDirDocument.findFile(KAPTURE_RECORDS_DATA_DIR);
                 if (recordsDirDocument == null || !recordsDirDocument.exists()) {
-                    recordsDirUri = DocumentsContract.createDocument(contentResolver, kaptureDirUri, DocumentsContract.Document.MIME_TYPE_DIR, KAPTURE_RECORDS_DATA_DIR);
+                    recordsDirUri = DocumentsContract.createDocument(contentResolver, sensorsDirUri, DocumentsContract.Document.MIME_TYPE_DIR, KAPTURE_RECORDS_DATA_DIR);
                     recordsDirDocument = DocumentFile.fromTreeUri(main_activity, recordsDirUri);
                 } else {
                     recordsDirUri = recordsDirDocument.getUri();
@@ -1871,7 +1871,6 @@ public class ImageSaver extends Thread {
                 }
                 Log.d(TAG, "sensorsTxtUri: " + sensorsTxtUri.toString());
 
-
                 /// records_camera.txt
                 final String KAPTURE_RECORDS_CAMERA_TXT = "records_camera.txt";
                 DocumentFile recordsCameraFileDocument = sensorsDirDocument.findFile(KAPTURE_RECORDS_CAMERA_TXT);
@@ -1902,7 +1901,7 @@ public class ImageSaver extends Thread {
                     ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(recordsGnssTxtUri, "w");
                     FileOutputStream txtStream = new FileOutputStream(pfd.getFileDescriptor());
                     txtStream.write(new String("# kapture format: 1.1\n").getBytes(StandardCharsets.UTF_8));
-                    txtStream.write(new String("# timestamp, device_id, image_path\n").getBytes(StandardCharsets.UTF_8));
+                    txtStream.write(new String("# timestamp, device_id, x, y, z, utc, dop\n").getBytes(StandardCharsets.UTF_8));
                     txtStream.close();
                     pfd.close();
 
@@ -1949,15 +1948,12 @@ public class ImageSaver extends Thread {
                     String mediaFilename = prefix + timeStamp + suffix + index + "." + extension;
                     String mimeType = storageUtils.getImageMimeType(extension);
 
-                    Log.e(TAG, "Assembling image_i_uri:");
-                    Log.e(TAG, "storageUtils.getTreeUriSAF(): " + storageUtils.getTreeUriSAF().toString());
-
                     // note that DocumentsContract.createDocument will automatically append to the filename if it already exists
                     Uri image_i_uri = DocumentsContract.createDocument(contentResolver, recordsDirUri, mimeType, mediaFilename);
 			        if( image_i_uri == null )
                         throw new IOException();
                     if( MyDebug.LOG )
-                        Log.d(TAG, "image_i_uri: " + image_i_uri);
+                        Log.d(TAG, "image_" + Integer.toString(i) + "_uri: " + image_i_uri);
 
                     request.save_uris.add(image_i_uri);
                 }
@@ -1969,13 +1965,9 @@ public class ImageSaver extends Thread {
                 return false;
             }
 
+            // Write out the images
             try {
-                // for now, just save all the images:
-                //String suffix = "_";
-                //success = saveImages(request, suffix, false, true, true);
-
                 saveBaseImages(request, "_");
-
 
                 main_activity.savingImage(false);
                 success = true;
