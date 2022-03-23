@@ -36,6 +36,7 @@ import android.provider.MediaStore.Video.VideoColumns;
 import android.provider.OpenableColumns;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 
 import android.system.Os;
 import android.system.StructStatVfs;
@@ -337,9 +338,24 @@ public class StorageUtils {
 
     // only valid if isUsingSAF()
     String getSaveLocationSAF() {
+        boolean needsToSetSaveLocationSAF = false;
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        // If SaveLocationSAF was never set, ask the user to set it now
-        if (!sharedPreferences.contains(PreferenceKeys.SaveLocationSAFPreferenceKey)) {
+
+        // if SaveLocationSAF was never set, ask the user to set it now
+        if (!sharedPreferences.contains(PreferenceKeys.SaveLocationSAFPreferenceKey) ) {
+            needsToSetSaveLocationSAF = true;
+            Log.d(TAG, "The save location SAF was not set yet!");
+        }
+        // if SaveLocationSAF was set but the directory does not exists now (may have been removed manually), ask the user to set it now
+        if (sharedPreferences.contains(PreferenceKeys.SaveLocationSAFPreferenceKey) ) {
+            Uri uri = Uri.parse(sharedPreferences.getString(PreferenceKeys.SaveLocationSAFPreferenceKey, ""));
+            DocumentFile file = DocumentFile.fromTreeUri(context, uri);
+            if (file == null || (file != null && !file.exists())) {
+                needsToSetSaveLocationSAF = true;
+                Log.d(TAG, "The save location SAF was already set, but that folder does not exist!\n  " + uri.toString());
+            }
+        }
+        if (needsToSetSaveLocationSAF) {
             MainActivity main_activity = (MainActivity)context;
             main_activity.runOnUiThread(new Runnable() {
                 @Override
@@ -349,6 +365,7 @@ public class StorageUtils {
             });
             main_activity.openFolderChooserDialogSAF(false);
         }
+
         return sharedPreferences.getString(PreferenceKeys.SaveLocationSAFPreferenceKey, "");
     }
 
