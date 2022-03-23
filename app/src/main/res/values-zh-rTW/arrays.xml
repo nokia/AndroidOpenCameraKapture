@@ -79,20 +79,10 @@
         <item>double</item>
     </string-array>
     <string-array name="preference_volume_keys_entries">
-        <item>拍照（或開始/停止錄影）</item>
-        <item>對焦</item>
-        <item>放大/縮小</item>
-        <item>變更曝光等級</item>
-        <item>切換自動水平開/關</item>
         <item>變更裝置音量</item>
         <item>什麼都不做</item>
         </string-array>
     <string-array name="preference_volume_keys_values">
-        <item>volume_take_photo</item>
-        <item>volume_focus</item>
-        <item>volume_zoom</item>
-        <item>volume_exposure</item>
-        <item>volume_auto_stabilise</item>
         <item>volume_nothing</item><!-- actually means change device volume! -->
         <item>volume_really_nothing</item>
     </string-array>

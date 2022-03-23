@@ -79,20 +79,10 @@
         <item>double</item>
     </string-array>
     <string-array name="preference_volume_keys_entries">
-        <item>Ta bilde (eller begynn/stopp videoopptak)</item>
-        <item>Fokuser</item>
-        <item>Forstørr/forminsk</item>
-        <item>Juster eksponeringsnivået</item>
-        <item>Skru auto-vater av/på</item>
         <item>Juster enhetsvolumet</item>
         <item>Ikke gjør noe</item>
     </string-array>
     <string-array name="preference_volume_keys_values">
-        <item>volume_take_photo</item>
-        <item>volume_focus</item>
-        <item>volume_zoom</item>
-        <item>volume_exposure</item>
-        <item>volume_auto_stabilise</item>
         <item>volume_nothing</item><!-- actually means change device volume! -->
         <item>volume_really_nothing</item>
     </string-array>

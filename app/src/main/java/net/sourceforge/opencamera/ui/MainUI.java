@@ -2711,92 +2711,20 @@ public class MainUI {
                     keydown_volume_down = true;
 
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
-                String volume_keys = sharedPreferences.getString(PreferenceKeys.VolumeKeysPreferenceKey, "volume_take_photo");
+                String volume_keys = sharedPreferences.getString(PreferenceKeys.VolumeKeysPreferenceKey, "volume_nothing");
 
-                if((keyCode==KeyEvent.KEYCODE_MEDIA_PREVIOUS
-                        ||keyCode==KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
-                        ||keyCode==KeyEvent.KEYCODE_MEDIA_STOP)
-                        &&!(volume_keys.equals("volume_take_photo"))) {
+                if(keyCode==KeyEvent.KEYCODE_MEDIA_PREVIOUS || keyCode==KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || keyCode==KeyEvent.KEYCODE_MEDIA_STOP) {
                     AudioManager audioManager = (AudioManager) main_activity.getSystemService(Context.AUDIO_SERVICE);
                     if(audioManager==null) break;
                     if(!audioManager.isWiredHeadsetOn()) break; // isWiredHeadsetOn() is deprecated, but comment says "Use only to check is a headset is connected or not."
                 }
 
-                switch(volume_keys) {
-                    case "volume_take_photo":
-                        main_activity.takePicture(false);
-                        return true;
-                    case "volume_focus":
-                        if(keydown_volume_up && keydown_volume_down) {
-                            if (MyDebug.LOG)
-                                Log.d(TAG, "take photo rather than focus, as both volume keys are down");
-                            main_activity.takePicture(false);
-                        }
-                        else if (main_activity.getPreview().getCurrentFocusValue() != null && main_activity.getPreview().getCurrentFocusValue().equals("focus_mode_manual2")) {
-                            if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-                                main_activity.changeFocusDistance(-1, false);
-                            else
-                                main_activity.changeFocusDistance(1, false);
-                        }
-                        else {
-                            // important not to repeatedly request focus, even though main_activity.getPreview().requestAutoFocus() will cancel, as causes problem if key is held down (e.g., flash gets stuck on)
-                            // also check DownTime vs EventTime to prevent repeated focusing whilst the key is held down
-                            if(event.getDownTime() == event.getEventTime() && !main_activity.getPreview().isFocusWaiting()) {
-                                if(MyDebug.LOG)
-                                    Log.d(TAG, "request focus due to volume key");
-                                main_activity.getPreview().requestAutoFocus();
-                            }
-                        }
-                        return true;
-                    case "volume_zoom":
-                        if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-                            main_activity.zoomIn();
-                        else
-                            main_activity.zoomOut();
-                        return true;
-                    case "volume_exposure":
-                        if(main_activity.getPreview().getCameraController() != null) {
-                            String value = sharedPreferences.getString(PreferenceKeys.ISOPreferenceKey, CameraController.ISO_DEFAULT);
-                            boolean manual_iso = !value.equals(CameraController.ISO_DEFAULT);
-                            if(keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                                if(manual_iso) {
-                                    if(main_activity.getPreview().supportsISORange())
-                                        main_activity.changeISO(1);
-                                }
-                                else
-                                    main_activity.changeExposure(1);
-                            }
-                            else {
-                                if(manual_iso) {
-                                    if(main_activity.getPreview().supportsISORange())
-                                        main_activity.changeISO(-1);
-                                }
-                                else
-                                    main_activity.changeExposure(-1);
-                            }
-                        }
-                        return true;
-                    case "volume_auto_stabilise":
-                        if( main_activity.supportsAutoStabilise() ) {
-                            boolean auto_stabilise = sharedPreferences.getBoolean(PreferenceKeys.AutoStabilisePreferenceKey, false);
-                            auto_stabilise = !auto_stabilise;
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean(PreferenceKeys.AutoStabilisePreferenceKey, auto_stabilise);
-                            editor.apply();
-                            String message = main_activity.getResources().getString(R.string.preference_auto_stabilise) + ": " + main_activity.getResources().getString(auto_stabilise ? R.string.on : R.string.off);
-                            main_activity.getPreview().showToast(main_activity.getChangedAutoStabiliseToastBoxer(), message);
-                            main_activity.getApplicationInterface().getDrawPreview().updateSettings(); // because we cache the auto-stabilise setting
-                            this.destroyPopup(); // need to recreate popup in order to update the auto-level checkbox
-                        }
-                        else {
-                            main_activity.getPreview().showToast(main_activity.getChangedAutoStabiliseToastBoxer(), R.string.auto_stabilise_not_supported);
-                        }
-                        return true;
-                    case "volume_really_nothing":
-                        // do nothing, but still return true so we don't change volume either
-                        return true;
+                if (volume_keys.equals("volume_really_nothing")) {
+                    // do nothing, but still return true so we don't change volume either
+                    return true;
                 }
-                // else do nothing here, but still allow changing of volume (i.e., the default behaviour)
+
+                // else do nothing here, but not return, still allow changing the volume (i.e., the default behaviour)
                 break;
             }
             case KeyEvent.KEYCODE_MENU:
@@ -2808,37 +2736,15 @@ public class MainUI {
                 return true;
             }
             case KeyEvent.KEYCODE_CAMERA:
-            {
-                if( event.getRepeatCount() == 0 ) {
-                    main_activity.takePicture(false);
-                    return true;
-                }
-            }
             case KeyEvent.KEYCODE_FOCUS:
-            {
-                // important not to repeatedly request focus, even though main_activity.getPreview().requestAutoFocus() will cancel - causes problem with hardware camera key where a half-press means to focus
-                // also check DownTime vs EventTime to prevent repeated focusing whilst the key is held down - see https://sourceforge.net/p/opencamera/tickets/174/ ,
-                // or same issue above for volume key focus
-                if( event.getDownTime() == event.getEventTime() && !main_activity.getPreview().isFocusWaiting() ) {
-                    if( MyDebug.LOG )
-                        Log.d(TAG, "request focus due to focus key");
-                    main_activity.getPreview().requestAutoFocus();
-                }
-                return true;
-            }
             case KeyEvent.KEYCODE_ZOOM_IN:
             case KeyEvent.KEYCODE_PLUS:
             case KeyEvent.KEYCODE_NUMPAD_ADD:
-            {
-                main_activity.zoomIn();
-                return true;
-            }
             case KeyEvent.KEYCODE_ZOOM_OUT:
             case KeyEvent.KEYCODE_MINUS:
             case KeyEvent.KEYCODE_NUMPAD_SUBTRACT:
             {
-                main_activity.zoomOut();
-                return true;
+                return false;
             }
             case KeyEvent.KEYCODE_SPACE:
             case KeyEvent.KEYCODE_NUMPAD_5:
@@ -2851,43 +2757,25 @@ public class MainUI {
                     commandMenuPopup();
                     return true;
                 }
-                else if( event.getRepeatCount() == 0 ) {
-                    main_activity.takePicture(false);
-                    return true;
+                else {
+                    break;
                 }
-                break;
             }
             case KeyEvent.KEYCODE_DPAD_UP:
             case KeyEvent.KEYCODE_NUMPAD_8:
                 //case KeyEvent.KEYCODE_VOLUME_UP: // test
-                if( !remote_control_mode ) {
-                    if( popupIsOpen() ) {
-                        initRemoteControlForPopup();
+                if( remote_control_mode ) {
+                    if( processRemoteUpButton() )
                         return true;
-                    }
-                    else if( isExposureUIOpen() ) {
-                        initRemoteControlForExposureUI();
-                        return true;
-                    }
                 }
-                else if( processRemoteUpButton() )
-                    return true;
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
             case KeyEvent.KEYCODE_NUMPAD_2:
                 //case KeyEvent.KEYCODE_VOLUME_DOWN: // test
-                if( !remote_control_mode ) {
-                    if( popupIsOpen() ) {
-                        initRemoteControlForPopup();
+                if( remote_control_mode ) {
+                    if( processRemoteDownButton() )
                         return true;
-                    }
-                    else if( isExposureUIOpen() ) {
-                        initRemoteControlForExposureUI();
-                        return true;
-                    }
                 }
-                else if( processRemoteDownButton() )
-                    return true;
                 break;
             case KeyEvent.KEYCODE_FUNCTION:
             case KeyEvent.KEYCODE_NUMPAD_MULTIPLY:

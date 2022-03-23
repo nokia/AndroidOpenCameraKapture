@@ -79,20 +79,10 @@
         <item>double</item>
     </string-array>
     <string-array name="preference_volume_keys_entries">
-        <item>Fotoğraf çek (ya da vidyo kaydını başlat/durdur)</item>
-        <item>Odakla</item>
-        <item>Büyült/Küçült</item>
-        <item>Pozlama seviyesini değiştir</item>
-        <item>Oto-stabilize açık/kapalı</item>
         <item>Cihaz sesini değiştir</item>
         <item>Eylem yok</item>
         </string-array>
     <string-array name="preference_volume_keys_values">
-        <item>volume_take_photo</item>
-        <item>volume_focus</item>
-        <item>volume_zoom</item>
-        <item>volume_exposure</item>
-        <item>volume_auto_stabilise</item>
         <item>volume_nothing</item><!-- actually means change device volume! -->
         <item>volume_really_nothing</item>
     </string-array>

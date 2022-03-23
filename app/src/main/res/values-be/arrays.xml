@@ -79,20 +79,10 @@
         <item>double</item>
     </string-array>
     <string-array name="preference_volume_keys_entries">
-        <item>Сфатаграфаваць ( ці укл/выкл запіс відэа)</item>
-        <item>Фокус</item>
-        <item>Павелічэнне / памяншэнне</item>
-        <item>Змяніць узровень экспазіцыі</item>
-        <item>Укл/выкл аўтастабілізацыю</item>
         <item>Змена гучнасці прылады</item>
         <item>Нічога не рабіць</item>
     </string-array>
     <string-array name="preference_volume_keys_values">
-        <item>volume_take_photo</item>
-        <item>volume_focus</item>
-        <item>volume_zoom</item>
-        <item>volume_exposure</item>
-        <item>volume_auto_stabilise</item>
         <item>volume_nothing</item><!-- actually means change device volume! -->
         <item>volume_really_nothing</item>
     </string-array>

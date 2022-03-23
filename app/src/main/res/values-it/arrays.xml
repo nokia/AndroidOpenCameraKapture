@@ -79,20 +79,10 @@
         <item>double</item>
     </string-array>
     <string-array name="preference_volume_keys_entries">
-        <item>Scatta foto (o fai partire/interrompere il video)</item>
-        <item>Messa a fuoco</item>
-        <item>Controllo zoom</item>
-        <item>Variazione livello esposizione</item>
-        <item>Stabilizzatore on/off</item>
         <item>Controllo volume dispositivo</item>
         <item>Non fare niente</item>
         </string-array>
     <string-array name="preference_volume_keys_values">
-        <item>volume_take_photo</item>
-        <item>volume_focus</item>
-        <item>volume_zoom</item>
-        <item>volume_exposure</item>
-        <item>volume_auto_stabilise</item>
         <item>volume_nothing</item><!-- actually means change device volume! -->
         <item>volume_really_nothing</item>
     </string-array>
