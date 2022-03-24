@@ -69,20 +69,10 @@
         <item>preference_preview_size_wysiwyg</item>
     </string-array>
     <string-array name="preference_volume_keys_entries">
-        <item>사진 촬영 (혹은 동영상 촬영 시작/중지)</item>
-        <item>초점</item>
-        <item>줌 확대/축소</item>
-        <item>노출 조정</item>
-        <item>자동 안정화 켜기/끄기</item>
         <item>기기 볼륨 변경</item>
         <item>아무것도 하지 않기</item>
         </string-array>
     <string-array name="preference_volume_keys_values">
-        <item>volume_take_photo</item>
-        <item>volume_focus</item>
-        <item>volume_zoom</item>
-        <item>volume_exposure</item>
-        <item>volume_auto_stabilise</item>
         <item>volume_nothing</item><!-- actually means change device volume! -->
         <item>volume_really_nothing</item>
     </string-array>

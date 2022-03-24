@@ -79,20 +79,10 @@
         <item>double</item>
     </string-array>
     <string-array name="preference_volume_keys_entries">
-        <item>写真を撮る (ビデオ録画の開始/終了)</item>
-        <item>フォーカス</item>
-        <item>ズームイン/ズームアウト</item>
-        <item>露出補正</item>
-        <item>傾き補正のオン/オフ</item>
         <item>音量の変更</item>
         <item>なし</item>
         </string-array>
     <string-array name="preference_volume_keys_values">
-        <item>volume_take_photo</item>
-        <item>volume_focus</item>
-        <item>volume_zoom</item>
-        <item>volume_exposure</item>
-        <item>volume_auto_stabilise</item>
         <item>volume_nothing</item><!-- actually means change device volume! -->
         <item>volume_really_nothing</item>
     </string-array>
