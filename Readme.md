@@ -1,5 +1,13 @@
 This repository is a fork of [OpenCamera](https://sourceforge.net/projects/opencamera/), adding support for the [Kapture](https://github.com/naver/kapture) output format.
 
+Extensions by @soeroesg are licenced under GPL v3.0
+© 2022 Nokia
+Licensed under the GNU General Public License v3.0 only
+SPDX-License-Identifier: GPL-3.0-only
+
+The kapture logo is from https://github.com/naver/kapture
+
+
 ---
 
 Open Camera is an Open Source Camera app for Android(TM) phones and tablets.

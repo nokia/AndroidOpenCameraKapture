@@ -53,3 +53,10 @@ Homepage: http://opencamera.org.uk/
 Google Play download: https://play.google.com/store/apps/details?id=net.sourceforge.opencamera
 
 Mark Harman 16 August 2021
+
+
+
+Extensions by @soeroesg:
+© 2022 Nokia
+Licensed under the GNU General Public License v3.0 only
+SPDX-License-Identifier: GPL-3.0-only
