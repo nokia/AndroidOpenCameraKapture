@@ -1805,6 +1805,7 @@ public class ImageSaver extends Thread {
             Uri sensorsTxtUri = null;
             Uri recordsCameraTxtUri = null;
             Uri recordsGnssTxtUri = null;
+            Uri recordsAndroidOrientationTxtUri = null;
 
             try {
 
@@ -1853,7 +1854,7 @@ public class ImageSaver extends Thread {
                 final String KAPTURE_SENSORS_TXT = "sensors.txt";
                 DocumentFile sensorsFileDocument = sensorsDirDocument.findFile(KAPTURE_SENSORS_TXT);
                 if (sensorsFileDocument == null || !sensorsFileDocument.exists()) {
-                    Log.d(TAG,"sensors.txt does not exist. creating it...");
+                    Log.d(TAG, KAPTURE_SENSORS_TXT + " does not exist, now creating it...");
 
                     // create file
                     sensorsTxtUri = DocumentsContract.createDocument(contentResolver, sensorsDirUri, "text/plain", KAPTURE_SENSORS_TXT);
@@ -1877,7 +1878,7 @@ public class ImageSaver extends Thread {
                 final String KAPTURE_RECORDS_CAMERA_TXT = "records_camera.txt";
                 DocumentFile recordsCameraFileDocument = sensorsDirDocument.findFile(KAPTURE_RECORDS_CAMERA_TXT);
                 if (recordsCameraFileDocument == null || !recordsCameraFileDocument.exists()) {
-                    Log.d(TAG, "records_camera.txt does not exist. creating it...");
+                    Log.d(TAG, KAPTURE_RECORDS_CAMERA_TXT + " does not exist, now creating it...");
                     recordsCameraTxtUri = DocumentsContract.createDocument(contentResolver, sensorsDirUri, "text/plain", KAPTURE_RECORDS_CAMERA_TXT);
 
                     ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(recordsCameraTxtUri, "w");
@@ -1897,7 +1898,7 @@ public class ImageSaver extends Thread {
                 final String KAPTURE_RECORDS_GNSS_TXT = "records_gnss.txt";
                 DocumentFile recordsGnssFileDocument = sensorsDirDocument.findFile(KAPTURE_RECORDS_GNSS_TXT);
                 if (recordsGnssFileDocument == null || !recordsGnssFileDocument.exists()) {
-                    Log.d(TAG, "records_gnss.txt does not exist. creating it...");
+                    Log.d(TAG, KAPTURE_RECORDS_GNSS_TXT + " does not exist, now creating it...");
                     recordsGnssTxtUri = DocumentsContract.createDocument(contentResolver, sensorsDirUri, "text/plain", KAPTURE_RECORDS_GNSS_TXT);
 
                     ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(recordsGnssTxtUri, "w");
@@ -1911,6 +1912,26 @@ public class ImageSaver extends Thread {
                 } else {
                     Log.d(TAG,"records_gnss.txt exists");
                     recordsGnssTxtUri = recordsGnssFileDocument.getUri();
+                }
+
+                /// records_android_orientation.txt
+                final String KAPTURE_RECORDS_ANDROID_ORIENTATION_TXT = "records_android_orientation.txt";
+                DocumentFile recordsAndroidOrientationFileDocument = sensorsDirDocument.findFile(KAPTURE_RECORDS_ANDROID_ORIENTATION_TXT);
+                if (recordsAndroidOrientationFileDocument == null || !recordsAndroidOrientationFileDocument.exists()) {
+                    Log.d(TAG, KAPTURE_RECORDS_ANDROID_ORIENTATION_TXT + " does not exist, now creating it...");
+                    recordsAndroidOrientationTxtUri = DocumentsContract.createDocument(contentResolver, sensorsDirUri, "text/plain", KAPTURE_RECORDS_ANDROID_ORIENTATION_TXT);
+
+                    ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(recordsAndroidOrientationTxtUri, "w");
+                    FileOutputStream txtStream = new FileOutputStream(pfd.getFileDescriptor());
+                    txtStream.write(new String("# kapture format: 1.1\n").getBytes(StandardCharsets.UTF_8));
+                    txtStream.write(new String("# timestamp, device_id, yaw, pitch, roll\n").getBytes(StandardCharsets.UTF_8));
+                    txtStream.close();
+                    pfd.close();
+
+                    recordsAndroidOrientationFileDocument = DocumentFile.fromSingleUri(main_activity, recordsAndroidOrientationTxtUri);
+                } else {
+                    Log.d(TAG,"records_gnss.txt exists");
+                    recordsAndroidOrientationTxtUri = recordsAndroidOrientationFileDocument.getUri();
                 }
 
             } catch(IOException e) {
@@ -2028,26 +2049,40 @@ public class ImageSaver extends Thread {
                 // GPS sensor
                 // sensor_params = [EPSG]
                 String current_gnss_sensor_line = new String();
-                String gnss_sensor_device_id_str = device_secure_id + "_gnss"; current_gnss_sensor_line += gnss_sensor_device_id_str + ", ";
-                sensor_name = "android" + "_" + exif_make_safe + "_" + exif_model_safe + "_gnss"; current_gnss_sensor_line += sensor_name + ", ";
+                String gnss_sensor_device_id_str = device_secure_id + "_gnss";
+                current_gnss_sensor_line += gnss_sensor_device_id_str + ", ";
+                sensor_name = "android" + "_" + exif_make_safe + "_" + exif_model_safe + "_gnss";
+                current_gnss_sensor_line += sensor_name + ", ";
                 sensor_type = "gnss"; current_gnss_sensor_line += sensor_type + ", ";
                 sensor_params = new String();
                 sensor_params += "EPSG:4326";
                 current_gnss_sensor_line += sensor_params;
 
+                // Android orientation sensor
+                String current_android_orientation_sensor_line = new String();
+                String android_orientation_sensor_device_id_str = device_secure_id + "_android_orientation";
+                current_android_orientation_sensor_line += android_orientation_sensor_device_id_str + ", ";
+                sensor_name = "android" + "_" + exif_make_safe + "_" + exif_model_safe + "_android_orientation";
+                current_android_orientation_sensor_line += sensor_name + ", ";
+                sensor_type = "android_orientation";
+                current_android_orientation_sensor_line += sensor_type;
+
                 // check whether our camera ID and/or GPS ID is contained (and whether parameters are the same)
-                // TODO(soeroesg): if ID matches but the parameters don't, we should generate a new ID
                 InputStream inputStream = contentResolver.openInputStream(sensorsTxtUri);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
                 boolean has_same_camera = false;
                 boolean has_same_gnss = false;
+                boolean has_same_android_orientation = false;
                 while ((line = reader.readLine()) != null) {
                     if (line.compareTo(current_camera_sensor_line) == 0) {
                         has_same_camera = true;
                     }
                     if (line.compareTo(current_gnss_sensor_line) == 0) {
                         has_same_gnss = true;
+                    }
+                    if (line.compareTo(current_android_orientation_sensor_line) == 0) {
+                        has_same_android_orientation = true;
                     }
                 }
                 reader.close();
@@ -2069,6 +2104,15 @@ public class ImageSaver extends Thread {
                     FileOutputStream sensorsTxtStream = new FileOutputStream(sensorsTxtPfd.getFileDescriptor());
                     current_gnss_sensor_line += "\n";
                     sensorsTxtStream.write(current_gnss_sensor_line.getBytes(StandardCharsets.UTF_8));
+                    sensorsTxtStream.close();
+                    sensorsTxtPfd.close();
+                }
+                if (!has_same_android_orientation) {
+                    // This seems to be a new sensor, add it to the list
+                    ParcelFileDescriptor sensorsTxtPfd = contentResolver.openFileDescriptor(sensorsTxtUri, "wa");
+                    FileOutputStream sensorsTxtStream = new FileOutputStream(sensorsTxtPfd.getFileDescriptor());
+                    current_android_orientation_sensor_line += "\n";
+                    sensorsTxtStream.write(current_android_orientation_sensor_line.getBytes(StandardCharsets.UTF_8));
                     sensorsTxtStream.close();
                     sensorsTxtPfd.close();
                 }
@@ -2193,12 +2237,42 @@ public class ImageSaver extends Thread {
                 recordsGnssPfd.close();
 
 
-                // TODO(soeroesg): We could add an orientation sensor and write out what is currently written into the EXIF User metadata
-                double geo_direction = request.geo_direction;
-                double level_angle = request.level_angle;
-                double pitch_angle = request.pitch_angle;
-                Location location =  request.location;
+                // ----------
+                // records_android_orientation.txt
+                // timestamp, device_id, yaw, pitch, roll
+                ParcelFileDescriptor recordsAndroidOrientationPfd = contentResolver.openFileDescriptor(recordsAndroidOrientationTxtUri, "wa");
+                FileOutputStream recordsAndroidOrientationTxtStream = new FileOutputStream(recordsAndroidOrientationPfd.getFileDescriptor());
+                //for (int i = 0; i <request.save_uris.size(); i++) {
+                for (int i = 0; i < 1; i++) { // WARNING: currently, only the first image has valid orientation!
 
+                    InputStream exifInputStream_i = new ByteArrayInputStream(request.jpeg_images.get(i));
+                    ExifInterface exif_i = new ExifInterface(exifInputStream_i);
+                    String exif_datetime_original = exif_i.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
+                    java.text.DateFormat image_datetime_formatter = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss");
+                    Date date = (Date)image_datetime_formatter.parse(exif_datetime_original);
+                    Long image_time_since_epoch = date.getTime();
+
+                    // We store the camera orientation w.r.t a portrait handheld smartphone camera
+                    // that is looking towards North. We store all three angles in degrees
+                    double yaw_angle = request.geo_direction; // yaw (around vertical axis)
+                    yaw_angle = yaw_angle * 180/Math.PI;
+                    double pitch_angle = request.pitch_angle; // pitch (tilt up/down)
+                    double roll_angle = request.level_angle; // roll (tilt left/right)
+
+                    // timestamp, device_id, yaw, pitch, roll
+                    // timestamp: the timestamp in same time referential as other sensors
+                    // yaw, pitch, roll in degrees
+                    String recordAndroidOrientationLine = new String();
+                    recordAndroidOrientationLine += image_time_since_epoch; recordAndroidOrientationLine += ", ";
+                    recordAndroidOrientationLine += android_orientation_sensor_device_id_str; recordAndroidOrientationLine += ", ";
+                    recordAndroidOrientationLine += Double.toString(yaw_angle); recordAndroidOrientationLine += ", ";
+                    recordAndroidOrientationLine += Double.toString(pitch_angle); recordAndroidOrientationLine += ", ";
+                    recordAndroidOrientationLine += Double.toString(roll_angle);
+                    recordAndroidOrientationLine += "\n";
+                    recordsAndroidOrientationTxtStream.write(recordAndroidOrientationLine.getBytes(StandardCharsets.UTF_8));
+                }
+                recordsAndroidOrientationTxtStream.close();
+                recordsAndroidOrientationPfd.close();
 
             } catch(Exception e) {
                 Log.e(TAG, "Exception:" + e.toString());
