@@ -1869,33 +1869,57 @@ public class CameraController2 extends CameraController {
                         Log.d(TAG,"characteristics_sensor_orientation: " + characteristics_sensor_orientation);
                         float[] characteristics_available_focal_lengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
                         Log.d(TAG,"characteristics_available_focal_lengths: " + characteristics_available_focal_lengths);
-                        float[] characteristics_lens_distortion = characteristics.get(CameraCharacteristics.LENS_DISTORTION);
-                        Log.d(TAG,"characteristics_lens_distortion: " + characteristics_lens_distortion);
-                        float[] characteristics_lens_intrinsic_calibration = characteristics.get(CameraCharacteristics.LENS_INTRINSIC_CALIBRATION);
-                        Log.d(TAG,"characteristics_lens_intrinsic_calibration: " + characteristics_lens_intrinsic_calibration);
-                        float[] characteristics_lens_radial_distortion = characteristics.get(CameraCharacteristics.LENS_RADIAL_DISTORTION);
-                        Log.d(TAG,"characteristics_lens_radial_distortion: " + characteristics_lens_radial_distortion);
-
-                        // https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#LENS_POSE_ROTATION
-                        float[] characteristics_lens_pose_rotation = characteristics.get(CameraCharacteristics.LENS_POSE_ROTATION);
-                        Log.d(TAG,"characteristics_lens_pose_rotation: " + characteristics_lens_pose_rotation);
-                        float[] characteristics_lens_pose_translation = characteristics.get(CameraCharacteristics.LENS_POSE_TRANSLATION);
-                        Log.d(TAG,"characteristics_lens_pose_translation: " + characteristics_lens_pose_translation);
-                        int characteristics_pose_reference = characteristics.get(CameraCharacteristics.LENS_POSE_REFERENCE);
-                        String characteristics_pose_reference_str = "UNDEFINED";
-                        switch(characteristics_pose_reference) {
-                            case CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA:
-                                characteristics_pose_reference_str = "PRIMARY_CAMERA";
-                                break;
-                            case CameraCharacteristics.LENS_POSE_REFERENCE_GYROSCOPE:
-                                characteristics_pose_reference_str = "GYROSCOPE";
-                                break;
-                            case CameraCharacteristics.LENS_POSE_REFERENCE_UNDEFINED:
-                                break;
-                            default:
-                                break;
+                        if (characteristics.get(CameraCharacteristics.LENS_DISTORTION) != null) {
+                            float[] characteristics_lens_distortion = characteristics.get(CameraCharacteristics.LENS_DISTORTION);
+                            Log.d(TAG, "characteristics_lens_distortion: " + characteristics_lens_distortion);
+                        } else {
+                            Log.d(TAG, "characteristics_lens_distortion: not available on this device");
                         }
-                        Log.d(TAG,"characteristics_pose_reference: " + characteristics_pose_reference_str);
+                        if (characteristics.get(CameraCharacteristics.LENS_INTRINSIC_CALIBRATION) != null) {
+                            float[] characteristics_lens_intrinsic_calibration = characteristics.get(CameraCharacteristics.LENS_INTRINSIC_CALIBRATION);
+                            Log.d(TAG, "characteristics_lens_intrinsic_calibration: " + characteristics_lens_intrinsic_calibration);
+                        } else {
+                            Log.d(TAG, "characteristics_lens_intrinsic_calibration: not available on this device");
+                        }
+                        if (characteristics.get(CameraCharacteristics.LENS_RADIAL_DISTORTION) != null) {
+                            float[] characteristics_lens_radial_distortion = characteristics.get(CameraCharacteristics.LENS_RADIAL_DISTORTION);
+                            Log.d(TAG, "characteristics_lens_radial_distortion: " + characteristics_lens_radial_distortion);
+                        } else {
+                            Log.d(TAG, "characteristics_lens_radial_distortion: not available on this device");
+                        }
+
+                        if (characteristics.get(CameraCharacteristics.LENS_POSE_ROTATION) != null) {
+                            // https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#LENS_POSE_ROTATION
+                            float[] characteristics_lens_pose_rotation = characteristics.get(CameraCharacteristics.LENS_POSE_ROTATION);
+                            Log.d(TAG, "characteristics_lens_pose_rotation: " + characteristics_lens_pose_rotation);
+                        } else {
+                            Log.d(TAG, "characteristics_lens_pose_rotation: not available on this device");
+                        }
+                        if (characteristics.get(CameraCharacteristics.LENS_POSE_TRANSLATION) != null) {
+                            float[] characteristics_lens_pose_translation = characteristics.get(CameraCharacteristics.LENS_POSE_TRANSLATION);
+                            Log.d(TAG, "characteristics_lens_pose_translation: " + characteristics_lens_pose_translation);
+                        } else {
+                            Log.d(TAG, "characteristics_lens_pose_translation: not available on this device");
+                        }
+                        if (characteristics.get(CameraCharacteristics.LENS_POSE_REFERENCE) != null) {
+                            int characteristics_pose_reference = characteristics.get(CameraCharacteristics.LENS_POSE_REFERENCE);
+                            String characteristics_pose_reference_str = "UNDEFINED";
+                            switch (characteristics_pose_reference) {
+                                case CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA:
+                                    characteristics_pose_reference_str = "PRIMARY_CAMERA";
+                                    break;
+                                case CameraCharacteristics.LENS_POSE_REFERENCE_GYROSCOPE:
+                                    characteristics_pose_reference_str = "GYROSCOPE";
+                                    break;
+                                case CameraCharacteristics.LENS_POSE_REFERENCE_UNDEFINED:
+                                    break;
+                                default:
+                                    break;
+                            }
+                            Log.d(TAG, "characteristics_pose_reference: " + characteristics_pose_reference_str);
+                        } else {
+                            Log.d(TAG, "characteristics_pose_reference: not available on this device");
+                        }
 
                         int [] capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
                         boolean has_private_preprocessing = false;
@@ -8101,7 +8125,7 @@ public class CameraController2 extends CameraController {
             if( modified_from_camera_settings ) {
                 // see note above
             }
-            else if( result.get(CaptureResult.LENS_FOCAL_LENGTH) != null ) {
+            else if( result.get(CaptureResult.LENS_INTRINSIC_CALIBRATION) != null ) {
                 capture_result_has_lens_intrinsic_calibration = true;
                 capture_result_lens_intrinsic_calibration = result.get(CaptureResult.LENS_INTRINSIC_CALIBRATION);
             }
@@ -8121,7 +8145,7 @@ public class CameraController2 extends CameraController {
             if( modified_from_camera_settings ) {
                 // see note above
             }
-            else if( result.get(CaptureResult.LENS_FOCAL_LENGTH) != null ) {
+            else if( result.get(CaptureResult.LENS_DISTORTION) != null ) {
                 capture_result_has_lens_distortion = true;
                 capture_result_lens_distortion = result.get(CaptureResult.LENS_DISTORTION);
             }
